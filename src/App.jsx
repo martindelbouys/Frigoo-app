@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
-import { auth } from './firebase'
+import {
+  doc, setDoc, getDoc, addDoc,
+  collection, query, where, onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore'
+import { auth, db } from './firebase'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -8,16 +13,47 @@ import './App.css'
 
 const provider = new GoogleAuthProvider()
 
+async function ensureUserDoc(user) {
+  const ref = doc(db, 'users', user.uid)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      budgetMensuel: 0,
+    })
+  }
+}
+
 function App() {
   const [user, setUser] = useState(null)
+  const [listCount, setListCount] = useState(null)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, setUser)
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u)
+      if (u) ensureUserDoc(u)
+    })
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    if (!user) { setListCount(null); return }
+    const q = query(collection(db, 'lists'), where('members', 'array-contains', user.uid))
+    const unsubscribe = onSnapshot(q, (snap) => setListCount(snap.size))
+    return unsubscribe
+  }, [user])
+
   const handleSignIn = () => signInWithPopup(auth, provider)
   const handleSignOut = () => signOut(auth)
+
+  const handleCreateList = () =>
+    addDoc(collection(db, 'lists'), {
+      name: 'Liste de test',
+      members: [user.uid],
+      createdAt: serverTimestamp(),
+    })
 
   return (
     <>
@@ -32,6 +68,12 @@ function App() {
             <>
               <h1>Bonjour, {user.displayName} 👋</h1>
               <p>{user.email}</p>
+              <button type="button" className="counter" onClick={handleCreateList}>
+                Créer une liste de test
+              </button>
+              <p>
+                {listCount === null ? 'Chargement…' : `${listCount} liste${listCount !== 1 ? 's' : ''} accessible${listCount !== 1 ? 's' : ''}`}
+              </p>
               <button type="button" className="counter" onClick={handleSignOut}>
                 Se déconnecter
               </button>
