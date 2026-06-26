@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react'
-import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
-import {
-  doc, setDoc, getDoc, addDoc,
-  collection, query, where, onSnapshot,
-  serverTimestamp,
-} from 'firebase/firestore'
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { List, ChefHat, Wallet, Settings } from 'lucide-react'
 import { auth, db } from './firebase'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
 
 const provider = new GoogleAuthProvider()
 
@@ -26,156 +19,95 @@ async function ensureUserDoc(user) {
   }
 }
 
-function App() {
-  const [user, setUser] = useState(null)
-  const [listCount, setListCount] = useState(null)
+const TABS = [
+  { id: 'liste',    label: 'Liste',    Icon: List },
+  { id: 'cuisine',  label: 'Cuisine',  Icon: ChefHat },
+  { id: 'depenses', label: 'Dépenses', Icon: Wallet },
+  { id: 'params',   label: 'Paramètres', Icon: Settings },
+]
+
+function Screen({ name }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+      <h1 style={{ fontSize: 32, fontWeight: 700 }}>{name}</h1>
+    </div>
+  )
+}
+
+function LoginScreen({ onSignIn }) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      flex: 1, gap: 24, padding: 32,
+    }}>
+      <h1 style={{ fontSize: 36, fontWeight: 800 }}>Frigoo</h1>
+      <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+        Gérez vos courses, votre cuisine et vos dépenses.
+      </p>
+      <button onClick={onSignIn} style={{
+        background: 'var(--color-accent)', color: '#fff',
+        border: 'none', borderRadius: 12, padding: '14px 28px',
+        fontSize: 16, fontWeight: 600, cursor: 'pointer',
+        fontFamily: 'inherit',
+      }}>
+        Se connecter avec Google
+      </button>
+    </div>
+  )
+}
+
+export default function App() {
+  const [user, setUser] = useState(undefined)
+  const [activeTab, setActiveTab] = useState('liste')
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u)
+      setUser(u ?? null)
       if (u) ensureUserDoc(u)
     })
     return unsubscribe
   }, [])
 
-  useEffect(() => {
-    if (!user) { setListCount(null); return }
-    const q = query(collection(db, 'lists'), where('members', 'array-contains', user.uid))
-    const unsubscribe = onSnapshot(q, (snap) => setListCount(snap.size))
-    return unsubscribe
-  }, [user])
-
   const handleSignIn = () => signInWithPopup(auth, provider)
-  const handleSignOut = () => signOut(auth)
 
-  const handleCreateList = () =>
-    addDoc(collection(db, 'lists'), {
-      name: 'Liste de test',
-      members: [user.uid],
-      createdAt: serverTimestamp(),
-    })
+  if (user === undefined) return null
+
+  if (!user) return <LoginScreen onSignIn={handleSignIn} />
+
+  const activeScreen = TABS.find((t) => t.id === activeTab)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          {user ? (
-            <>
-              <h1>Bonjour, {user.displayName} 👋</h1>
-              <p>{user.email}</p>
-              <button type="button" className="counter" onClick={handleCreateList}>
-                Créer une liste de test
-              </button>
-              <p>
-                {listCount === null ? 'Chargement…' : `${listCount} liste${listCount !== 1 ? 's' : ''} accessible${listCount !== 1 ? 's' : ''}`}
-              </p>
-              <button type="button" className="counter" onClick={handleSignOut}>
-                Se déconnecter
-              </button>
-            </>
-          ) : (
-            <>
-              <h1>Get started</h1>
-              <button type="button" className="counter" onClick={handleSignIn}>
-                Se connecter avec Google
-              </button>
-            </>
-          )}
-        </div>
-      </section>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100svh' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 64 }}>
+        <Screen name={activeScreen.label} />
+      </main>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <nav style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        display: 'flex', borderTop: '1px solid var(--color-border)',
+        background: '#fff', height: 64,
+      }}>
+        {TABS.map(({ id, label, Icon }) => {
+          const active = activeTab === id
+          const color = active ? 'var(--color-accent)' : 'var(--color-text-secondary)'
+          return (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              style={{
+                flex: 1, display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center', gap: 4,
+                background: 'none', border: 'none', cursor: 'pointer',
+                color, fontFamily: 'inherit',
+              }}
+            >
+              <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+              <span style={{ fontSize: 11, fontWeight: active ? 700 : 500 }}>{label}</span>
+            </button>
+          )
+        })}
+      </nav>
+    </div>
   )
 }
-
-export default App
