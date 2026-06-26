@@ -1,11 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
+import { auth } from './firebase'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+const provider = new GoogleAuthProvider()
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser)
+    return unsubscribe
+  }, [])
+
+  const handleSignIn = () => signInWithPopup(auth, provider)
+  const handleSignOut = () => signOut(auth)
 
   return (
     <>
@@ -16,18 +28,23 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+          {user ? (
+            <>
+              <h1>Bonjour, {user.displayName} 👋</h1>
+              <p>{user.email}</p>
+              <button type="button" className="counter" onClick={handleSignOut}>
+                Se déconnecter
+              </button>
+            </>
+          ) : (
+            <>
+              <h1>Get started</h1>
+              <button type="button" className="counter" onClick={handleSignIn}>
+                Se connecter avec Google
+              </button>
+            </>
+          )}
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
       </section>
 
       <div className="ticks"></div>
