@@ -3,6 +3,7 @@ import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebas
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { List, ChefHat, Wallet, Settings } from 'lucide-react'
 import { auth, db } from './firebase'
+import ListeScreen from './screens/ListeScreen'
 
 const provider = new GoogleAuthProvider()
 
@@ -26,7 +27,7 @@ const TABS = [
   { id: 'params',   label: 'Paramètres', Icon: Settings },
 ]
 
-function Screen({ name }) {
+function PlaceholderScreen({ name }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
       <h1 style={{ fontSize: 32, fontWeight: 700 }}>{name}</h1>
@@ -79,8 +80,11 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100svh' }}>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 64 }}>
-        <Screen name={activeScreen.label} />
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 64, overflow: 'hidden' }}>
+        {activeTab === 'liste'    && <ListeScreen user={user} />}
+        {activeTab === 'cuisine'  && <PlaceholderScreen name="Cuisine" />}
+        {activeTab === 'depenses' && <PlaceholderScreen name="Dépenses" />}
+        {activeTab === 'params'   && <PlaceholderScreen name="Paramètres" />}
       </main>
 
       <nav style={{
