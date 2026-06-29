@@ -298,7 +298,7 @@ export default function ListeScreen({ user }) {
   const progressPct = totalCount ? Math.round(checkedCount / totalCount * 100) : 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', position: 'relative', background: '#F7F7F8' }}>
 
       {/* ── Header ── */}
       <div style={{
@@ -350,7 +350,7 @@ export default function ListeScreen({ user }) {
 
       {/* ── Items list ── */}
       <div
-        style={{ flex: 1, overflowY: 'auto', paddingTop: 10, paddingBottom: 152 }}
+        style={{ flex: 1, overflowY: 'auto', paddingTop: 10, paddingBottom: 16 }}
         onClick={() => swipedId && setSwipedId(null)}
       >
         {grouped.length === 0 && (
@@ -388,19 +388,18 @@ export default function ListeScreen({ user }) {
         ))}
       </div>
 
-      {/* ── Vider la liste — 16px margins on all sides, above nav ── */}
+      {/* ── Vider la liste — in-flow at the bottom, 16px margins ── */}
       <div style={{
-        position: 'fixed', bottom: 64, left: 0, right: 0,
-        padding: '10px 16px 12px',
-        background: '#fff',
-        zIndex: 40,
+        flexShrink: 0,
+        padding: '10px 16px 14px',
+        background: '#F7F7F8',
       }}>
         <button
           onClick={handleClearList}
           disabled={totalCount === 0}
           style={{
             width: '100%', padding: '14px',
-            background: totalCount === 0 ? '#ccc' : 'var(--color-accent)',
+            background: totalCount === 0 ? '#C8C8C8' : 'var(--color-accent)',
             color: '#fff', border: 'none', borderRadius: 14,
             fontFamily: 'inherit', fontWeight: 700, fontSize: 15,
             cursor: totalCount === 0 ? 'default' : 'pointer',
@@ -410,15 +409,15 @@ export default function ListeScreen({ user }) {
         </button>
       </div>
 
-      {/* ── FAB — above the "Vider" bar ── */}
+      {/* ── FAB — absolute, above the Vider button ── */}
       <button
         onClick={() => setShowModal(true)}
         style={{
-          position: 'fixed', bottom: 150, right: 20,
+          position: 'absolute', bottom: 84, right: 16,
           width: 56, height: 56, borderRadius: '50%',
           background: 'var(--color-accent)', color: '#fff',
           border: 'none', fontSize: 28, lineHeight: 1,
-          cursor: 'pointer', zIndex: 50,
+          cursor: 'pointer', zIndex: 10,
           boxShadow: '0 6px 18px rgba(232,71,42,.34)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'inherit',

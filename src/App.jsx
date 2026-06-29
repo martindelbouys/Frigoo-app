@@ -79,8 +79,8 @@ export default function App() {
   const activeScreen = TABS.find((t) => t.id === activeTab)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100svh' }}>
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 64, overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100svh' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeTab === 'liste'    && <ListeScreen user={user} />}
         {activeTab === 'cuisine'  && <PlaceholderScreen name="Cuisine" />}
         {activeTab === 'depenses' && <PlaceholderScreen name="Dépenses" />}
@@ -88,7 +88,7 @@ export default function App() {
       </main>
 
       <nav style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
+        flexShrink: 0,
         display: 'flex', borderTop: '1px solid var(--color-border)',
         background: '#fff', height: 64,
       }}>
