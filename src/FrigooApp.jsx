@@ -553,8 +553,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     },
   }))
 
-  // ── Tab styles ─────────────────────────────────────────────────────────────
-  const tabStyle = (on) => ({ flex:1, border:'none', background:'transparent', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, color:on?'#E8472A':'#A6A6A6', padding:'6px 0' })
+  // ── Tab styles — flex:0 0 25% garantit 4 colonnes égales sur iOS Safari ──
+  const tabStyle = (on) => ({ flex:'0 0 25%', minWidth:0, border:'none', background:'transparent', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2, color:on?'#E8472A':'#A6A6A6', padding:'6px 0', overflow:'hidden' })
 
   // ── Budget / prefs mutations ───────────────────────────────────────────────
   const budgetUp   = async () => { const n=budget+10; setBudget(n); await updateDoc(userRef(), { budget:n }) }
@@ -650,8 +650,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
         {overlay==='clear'       && <ClearConfirmOverlay  {...p} />}
       </div>
 
-      {/* Bottom nav — safe-bottom ajoute env(safe-area-inset-bottom) pour le home indicator iPhone */}
-      <div className="safe-bottom" style={{ flexShrink:0, display:'flex', background:'#fff', borderTop:'1px solid #EFEFEF', paddingTop:9, paddingLeft:6, paddingRight:6 }}>
+      {/* Bottom nav — grid garantit 4 colonnes strictement égales sur tous les iOS */}
+      <div className="safe-bottom" style={{ flexShrink:0, display:'grid', gridTemplateColumns:'repeat(4,1fr)', background:'#fff', borderTop:'1px solid #EFEFEF', paddingTop:8, paddingBottom:0, paddingLeft:4, paddingRight:4 }}>
         <TabBtn style={p.tListe}    onClick={p.goListe}    icon={<IconListe    active={tab==='liste'} />}    label="Liste" />
         <TabBtn style={p.tCuisine}  onClick={p.goCuisine}  icon={<IconCuisine  active={tab==='cuisine'} />}  label="Recettes" />
         <TabBtn style={p.tDepenses} onClick={p.goDepenses} icon={<IconDepenses active={tab==='depenses'} />} label="Dépenses" />
@@ -671,24 +671,24 @@ function TabBtn({ style, onClick, icon, label }) {
   return (
     <button onClick={onClick} style={style}>
       {icon}
-      <span style={{ fontSize:10.5, fontWeight:800 }}>{label}</span>
+      <span style={{ fontSize:11, fontWeight:800, whiteSpace:'nowrap', letterSpacing:-.2 }}>{label}</span>
     </button>
   )
 }
 
 function IconListe({ active }) {
   const c = active ? '#E8472A' : '#A6A6A6'
-  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/><circle cx="4.5" cy="18" r="1.3"/></svg>
+  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/><circle cx="4.5" cy="18" r="1.3"/></svg>
 }
 function IconCuisine({ active }) {
   const c = active ? '#E8472A' : '#A6A6A6'
-  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><path d="M5 14h14l-1.2 6.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 14z"/><path d="M12 14a5 5 0 0 0 5-5 5 5 0 0 0-10 0 5 5 0 0 0 5 5z"/><line x1="12" y1="2.5" x2="12" y2="4"/></svg>
+  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><path d="M5 14h14l-1.2 6.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 14z"/><path d="M12 14a5 5 0 0 0 5-5 5 5 0 0 0-10 0 5 5 0 0 0 5 5z"/><line x1="12" y1="2.5" x2="12" y2="4"/></svg>
 }
 function IconDepenses({ active }) {
   const c = active ? '#E8472A' : '#A6A6A6'
-  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.3" fill={c} stroke="none"/></svg>
+  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.3" fill={c} stroke="none"/></svg>
 }
 function IconParams({ active }) {
   const c = active ? '#E8472A' : '#A6A6A6'
-  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L16.2 3H11.8l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4.4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg>
+  return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={active?2.5:2.1} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L16.2 3H11.8l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h4.4l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5A7 7 0 0 0 19 12z"/></svg>
 }
