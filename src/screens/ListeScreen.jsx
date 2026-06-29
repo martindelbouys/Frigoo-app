@@ -182,8 +182,27 @@ export default function ListeScreen({ user }) {
     .map((cat) => ({ cat, items: items.filter((i) => i.category === cat) }))
     .filter(({ items }) => items.length > 0)
 
+  const checkedCount = items.filter((i) => i.checked).length
+  const totalCount = items.length
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '16px 16px 14px',
+        background: '#fff',
+        boxShadow: '0 1px 0 var(--color-border)',
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
+          Dans ma liste, il y a…
+        </span>
+        <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)', fontWeight: 500 }}>
+          {checkedCount}/{totalCount} pris
+        </span>
+      </div>
+
       {/* Add form */}
       <form
         onSubmit={handleAdd}
