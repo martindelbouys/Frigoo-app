@@ -1,32 +1,63 @@
-:root {
-  --color-accent: #E8472A;
-  --color-text: #15110F;
-  --color-text-secondary: #6B6B6B;
-  --color-text-tertiary: #9A9A9A;
-  --color-bg-card: #F4F4F5;
-  --color-border: #F0F0F0;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: var(--color-text);
-  background: #fff;
+  font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  color: #15110F;
+  background: #F6F6F7;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Empêche le bounce/overscroll de la page entière sur iOS */
+  overscroll-behavior: none;
+  /* Empêche le double-tap zoom sur iOS */
+  touch-action: manipulation;
 }
 
 #root {
-  max-width: 430px;
-  margin: 0 auto;
   height: 100svh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 0 0 1px #e8e8e8;
+}
+
+/* Scrolling fluide sur iOS */
+.fg-scroll {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.fg-scroll::-webkit-scrollbar { display: none; }
+
+/* Supprime le highlight bleu/gris au tap sur iOS */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Empêche la sélection de texte pendant les swipes */
+button { -webkit-user-select: none; user-select: none; }
+
+/* Fix zoom iOS sur les inputs : font-size >= 16px */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Safe area pour les appareils avec notch/home indicator */
+.safe-bottom {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+@keyframes fgToast {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes fgSheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes fgFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fgPop {
+  0%   { transform: scale(.96); opacity: .6; }
+  100% { transform: scale(1);   opacity: 1; }
 }

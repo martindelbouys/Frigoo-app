@@ -1,167 +1,74 @@
-import { useState, useEffect } from 'react'
-import {
-  collection, onSnapshot, addDoc, deleteDoc,
-  doc, updateDoc, serverTimestamp, getDoc,
-} from 'firebase/firestore'
-import { db } from '../firebase'
-
-const EXPENSE_EMOJIS = ['🛒', '🥖', '🌿', '🍖', '💊', '🧴', '🍷', '🧹', '🍕', '☕']
-
-function fmt(n) {
-  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-function monthKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-}
-
-export default function DepensesScreen({ uid, listId, itemCount }) {
-  const [budget, setBudget] = useState(250)
-  const [expenses, setExpenses] = useState([])
-  const [motif, setMotif] = useState('')
-  const [montant, setMontant] = useState('')
-
-  useEffect(() => {
-    if (!uid) return
-    getDoc(doc(db, 'users', uid)).then((snap) => {
-      if (snap.exists() && snap.data().budgetMensuel) setBudget(snap.data().budgetMensuel)
-    })
-    return onSnapshot(collection(db, 'users', uid, 'expenses'), (snap) =>
-      setExpenses(
-        snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
-      )
-    )
-  }, [uid])
-
-  const now = new Date()
-  const currentMonthKey = monthKey(now)
-  const thisMonthExpenses = expenses.filter((e) => {
-    if (!e.createdAt) return false
-    return monthKey(new Date(e.createdAt.seconds * 1000)) === currentMonthKey
-  })
-  const totalSpent = thisMonthExpenses.reduce((s, e) => s + (e.montant ?? 0), 0)
-  const remaining = budget - totalSpent
-  const spentPct = Math.min(100, Math.round((totalSpent / budget) * 100))
-
-  const adjustBudget = async (delta) => {
-    const newBudget = Math.max(0, budget + delta)
-    setBudget(newBudget)
-    await updateDoc(doc(db, 'users', uid), { budgetMensuel: newBudget })
-  }
-
-  const handleAddExpense = async (e) => {
-    e.preventDefault()
-    const amount = parseFloat(montant.replace(',', '.'))
-    if (!motif.trim() || isNaN(amount) || amount <= 0) return
-    const emoji = EXPENSE_EMOJIS[Math.floor(Math.random() * EXPENSE_EMOJIS.length)]
-    await addDoc(collection(db, 'users', uid, 'expenses'), {
-      motif: motif.trim(), montant: amount, emoji, createdAt: serverTimestamp(),
-    })
-    setMotif('')
-    setMontant('')
-  }
-
-  const handleDelete = (id) => deleteDoc(doc(db, 'users', uid, 'expenses', id))
-
-  const formatDate = (ts) => {
-    if (!ts) return ''
-    const d = new Date(ts.seconds * 1000)
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
-  }
+export default function DepensesScreen(p) {
+  const remaining = p.budget - p.spent
+  const remainColor = remaining < 0 ? '#FFE3B0' : '#fff'
 
   return (
-    <div style={{ flex: 1, background: '#F6F6F7', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* Header */}
-      <div style={{ background: '#fff', padding: '16px 20px 14px', borderBottom: '1px solid #F0F0F0', flexShrink: 0 }}>
-        <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-.5px' }}>Dépenses</div>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F6F6F7' }}>
+      <div style={{ background:'#fff', padding:'16px 16px 14px', paddingTop:'max(54px, calc(env(safe-area-inset-top) + 14px))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
+        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px', marginTop:1 }}>Dépenses </div>
       </div>
-
-      {/* Scroll */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 32px' }}>
-
+      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
         {/* Budget card */}
-        <div style={{ background: '#E8472A', borderRadius: 18, padding: '18px 20px 16px', marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.75)', marginBottom: 4 }}>Il te reste ce mois-ci</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 12 }}>
-            <span style={{ fontSize: 40, fontWeight: 800, color: '#fff', letterSpacing: '-1px', lineHeight: 1 }}>{fmt(remaining)}&nbsp;€</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>/ {fmt(budget)}&nbsp;€</span>
+        <div style={{ borderRadius:24, padding:22, color:'#fff', boxShadow:'0 8px 22px rgba(240,130,79,.28)', background:'#e8472a' }}>
+          <div style={{ fontSize:13, fontWeight:700, opacity:.85 }}>Il te reste ce mois-ci</div>
+          <div style={{ display:'flex', alignItems:'baseline', gap:8, marginTop:4 }}>
+            <span style={{ fontSize:46, fontWeight:800, letterSpacing:'-1.5px', color:remainColor }}>{p.remainingLabel}</span>
+            <span style={{ fontSize:15, fontWeight:700, opacity:.7 }}>/ {p.budgetLabel}</span>
           </div>
-          <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,.3)', overflow: 'hidden', marginBottom: 6 }}>
-            <div style={{ height: '100%', borderRadius: 3, background: '#fff', width: `${100 - spentPct}%`, transition: 'width .3s' }} />
+          <div style={{ height:11, borderRadius:6, background:'rgba(255,255,255,.28)', marginTop:16, overflow:'hidden' }}>
+            <div style={{ height:'100%', borderRadius:6, background:'#fff', width:p.pct+'%' }}/>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.75)', textAlign: 'right', marginBottom: 14 }}>
-            {fmt(totalSpent)}&nbsp;€ dépensés
+          <div style={{ display:'flex', justifyContent:'flex-end', marginTop:8, fontSize:12, fontWeight:700, opacity:.9 }}>
+            <span>{p.spentLabel} dépensés</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Budget mensuel</span>
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.15)', borderRadius: 12, padding: '4px 6px' }}>
-              <button onClick={() => adjustBudget(-10)} style={{ width: 30, height: 30, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,.25)', color: '#fff', fontSize: 20, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>−</button>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', minWidth: 70, textAlign: 'center' }}>{fmt(budget)}&nbsp;€</span>
-              <button onClick={() => adjustBudget(10)} style={{ width: 30, height: 30, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,.25)', color: '#fff', fontSize: 20, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+          <div style={{ height:1, background:'rgba(255,255,255,.24)', margin:'18px 0' }}/>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ fontSize:15, fontWeight:800 }}>Budget mensuel</div>
+            <div style={{ display:'flex', alignItems:'center', gap:0, background:'rgba(255,255,255,.22)', borderRadius:12, padding:3 }}>
+              <button onClick={p.budgetDown} style={{ width:34, height:34, border:'none', background:'#fff', borderRadius:9, cursor:'pointer', fontSize:20, fontWeight:700, color:'#F0824F', lineHeight:1, boxShadow:'0 1px 3px rgba(0,0,0,.12)' }}>−</button>
+              <span style={{ minWidth:96, padding:'0 6px', textAlign:'center', fontSize:16, fontWeight:800, color:'#fff', whiteSpace:'nowrap' }}>{p.budgetLabel}</span>
+              <button onClick={p.budgetUp} style={{ width:34, height:34, border:'none', background:'#fff', borderRadius:9, cursor:'pointer', fontSize:18, fontWeight:700, color:'#F0824F', lineHeight:1, boxShadow:'0 1px 3px rgba(0,0,0,.12)' }}>+</button>
             </div>
           </div>
         </div>
 
-        {/* Panier en cours */}
-        <div style={{ background: '#fff', border: '1px solid #ECECEC', borderRadius: 14, padding: '13px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
-          <span style={{ fontSize: 28 }}>🛒</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 800 }}>Panier en cours</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#9A9A9A', marginTop: 1 }}>
-              {itemCount} article{itemCount > 1 ? 's' : ''} dans ta liste
-            </div>
+        {/* Current cart */}
+        <div style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF7F5', border:'1px solid #FBE0D8', borderRadius:18, padding:'14px 16px', marginTop:12 }}>
+          <span style={{ width:40, height:40, borderRadius:11, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:21 }}>🛒</span>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:14, fontWeight:800 }}>Panier en cours</div>
+            <div style={{ fontSize:12, fontWeight:600, color:'#A07A6E' }}>{p.cartCount} articles dans « {p.activeListName} »</div>
           </div>
+          <span style={{ fontSize:19, fontWeight:800, color:'#E8472A' }}>≈ {p.listTotalLabel}</span>
         </div>
 
-        {/* DÉPENSES DU MOIS */}
-        <div style={{ fontSize: 12, fontWeight: 800, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: '.4px', marginBottom: 10 }}>
-          Dépenses du mois
+        {/* Add expense */}
+        <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Dépenses du mois</div>
+        <div style={{ display:'flex', gap:8, background:'#fff', border:'1px solid #F0F0F0', borderRadius:16, padding:10, marginBottom:12 }}>
+          <input value={p.expReason} onChange={e=>p.setExpReason(e.target.value)} placeholder="Motif (ex : Courses Lidl)" style={{ flex:1, minWidth:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600 }} />
+          <input value={p.expAmount} onChange={e=>p.setExpAmount(e.target.value)} inputMode="decimal" placeholder="0,00" style={{ width:74, flexShrink:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 10px', fontFamily:'inherit', fontSize:14, fontWeight:800, textAlign:'right' }} />
+          <button onClick={p.addExpense} style={{ flexShrink:0, width:46, border:'none', background:'#E8472A', color:'#fff', borderRadius:11, fontSize:24, fontWeight:700, cursor:'pointer', lineHeight:1 }}>+</button>
         </div>
-
-        {/* Add form */}
-        <form onSubmit={handleAddExpense} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-          <input
-            value={motif}
-            onChange={(e) => setMotif(e.target.value)}
-            placeholder="Motif (ex : Courses Lidl)"
-            style={{ flex: 1, padding: '12px 14px', borderRadius: 12, border: '1px solid #ECECEC', fontSize: 14, fontFamily: 'inherit', background: '#fff', outline: 'none', color: '#15110F' }}
-          />
-          <input
-            value={montant}
-            onChange={(e) => setMontant(e.target.value)}
-            placeholder="0,00"
-            type="text"
-            inputMode="decimal"
-            style={{ width: 72, padding: '12px 10px', borderRadius: 12, border: '1px solid #ECECEC', fontSize: 14, fontFamily: 'inherit', background: '#fff', outline: 'none', textAlign: 'center', color: '#15110F' }}
-          />
-          <button
-            type="submit"
-            style={{ width: 44, height: 44, flexShrink: 0, border: 'none', borderRadius: 12, background: '#E8472A', color: '#fff', fontSize: 22, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
-          >
-            +
-          </button>
-        </form>
 
         {/* Expenses list */}
-        {thisMonthExpenses.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '24px 0', color: '#9A9A9A', fontSize: 14, fontWeight: 600 }}>
-            Aucune dépense ce mois-ci.
+        {p.expensesEmpty && (
+          <div style={{ textAlign:'center', padding:'24px 16px', color:'#A0A0A0', fontSize:14, fontWeight:600, lineHeight:1.5 }}>Aucune dépense ce mois-ci.<br/>Ajoute-en une ci-dessus 👆</div>
+        )}
+        {p.expensesNotEmpty && (
+          <div style={{ background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, overflow:'hidden' }}>
+            {p.expenses.map((e, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:11, padding:'13px 14px', borderBottom:'1px solid #F4F4F4' }}>
+                <span style={{ width:38, height:38, flexShrink:0, borderRadius:11, background:'#FFF4F1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19 }}>{e.emoji}</span>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:15, fontWeight:700, lineHeight:1.2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{e.reason}</div>
+                  <div style={{ fontSize:12, fontWeight:600, color:'#A0A0A0', marginTop:1 }}>{e.dateLabel}</div>
+                </div>
+                <span style={{ fontSize:16, fontWeight:800, color:'#15110F', whiteSpace:'nowrap' }}>{e.amountLabel}</span>
+                <button onClick={e.onRemove} style={{ flexShrink:0, border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, fontWeight:700, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+              </div>
+            ))}
           </div>
         )}
-        {thisMonthExpenses.map((exp) => (
-          <div key={exp.id} style={{ background: '#fff', border: '1px solid #ECECEC', borderRadius: 14, padding: '13px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
-            <span style={{ fontSize: 28, flexShrink: 0 }}>{exp.emoji ?? '🛒'}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{exp.motif}</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#9A9A9A', marginTop: 1 }}>{formatDate(exp.createdAt)}</div>
-            </div>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#15110F', flexShrink: 0 }}>− {fmt(exp.montant)} €</span>
-            <button onClick={() => handleDelete(exp.id)} style={{ border: 'none', background: 'transparent', color: '#D0D0D0', fontSize: 20, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>×</button>
-          </div>
-        ))}
       </div>
     </div>
   )
