@@ -21,6 +21,21 @@ export const CATEGORIES = [
   'Foyer',
 ]
 
+const CATEGORY_EMOJI = {
+  'Fruits & Légumes':   '🥦',
+  'Féculents & Céréales': '🍞',
+  'Produits Laitiers':  '🥛',
+  'Viandes & Poissons': '🥩',
+  'Matières Grasses':   '🧈',
+  'Surgelés':           '🧊',
+  'Boissons':           '🧃',
+  'Produits Sucrés':    '🍬',
+  'Apéro':              '🍷',
+  'Soin & Santé':       '💊',
+  'Produit Ménager':    '🧹',
+  'Foyer':              '🏠',
+}
+
 async function getOrCreateList(uid) {
   const q = query(collection(db, 'lists'), where('members', 'array-contains', uid))
   const snap = await getDocs(q)
@@ -62,7 +77,10 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
   }
 
   return (
-    <div style={{ position: 'relative', overflow: 'hidden' }}>
+    <div style={{
+      position: 'relative', overflow: 'hidden',
+      borderRadius: 12, margin: '0 16px 5px',
+    }}>
       <div
         style={{
           position: 'absolute', right: 0, top: 0, bottom: 0,
@@ -81,12 +99,11 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
         onClick={handleRowClick}
         style={{
           display: 'flex', alignItems: 'center', gap: 12,
-          padding: '13px 16px',
+          padding: '15px 14px',
           background: '#fff',
           transform: isOpen ? 'translateX(-100px)' : 'translateX(0)',
           transition: 'transform 0.22s ease',
           position: 'relative',
-          borderBottom: '1px solid var(--color-border)',
         }}
       >
         <button
@@ -107,8 +124,17 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
           )}
         </button>
 
+        <div style={{
+          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+          background: '#F4F4F5',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18,
+        }}>
+          {CATEGORY_EMOJI[item.category] ?? '🛒'}
+        </div>
+
         <span style={{
-          fontSize: 15, lineHeight: 1.4,
+          fontSize: 15, lineHeight: 1.4, fontWeight: 500,
           color: item.checked ? 'var(--color-text-tertiary)' : 'var(--color-text)',
           textDecoration: item.checked ? 'line-through' : 'none',
           flex: 1,
@@ -222,10 +248,8 @@ export default function ListeScreen({ user }) {
         )}
         {grouped.map(({ cat, items: catItems }) => (
           <div key={cat}>
-            <div style={{
-              padding: '14px 16px 6px',
-              background: '#fff',
-            }}>
+            <div style={{ padding: '16px 16px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 14 }}>{CATEGORY_EMOJI[cat]}</span>
               <span style={{
                 fontSize: 11, fontWeight: 700,
                 color: 'var(--color-text-secondary)',
