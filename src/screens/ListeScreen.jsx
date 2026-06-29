@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   collection, query, where, onSnapshot,
   addDoc, updateDoc, deleteDoc, getDocs,
-  doc, serverTimestamp,
+  doc, serverTimestamp, writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
@@ -257,6 +257,15 @@ export default function ListeScreen({ user }) {
     return unsubscribe
   }, [listId])
 
+  const handleClearList = async () => {
+    if (!listId) return
+    // Only deletes documents inside lists/{listId}/items — never touches fridges/ or any other collection.
+    const snap = await getDocs(collection(db, 'lists', listId, 'items'))
+    const batch = writeBatch(db)
+    snap.docs.forEach((d) => batch.delete(d.ref))
+    await batch.commit()
+  }
+
   const grouped = CATEGORIES
     .map((cat) => ({ cat, items: items.filter((i) => i.category === cat) }))
     .filter(({ items }) => items.length > 0)
@@ -284,7 +293,7 @@ export default function ListeScreen({ user }) {
 
       {/* Items list */}
       <div
-        style={{ flex: 1, overflowY: 'auto', paddingBottom: 96 }}
+        style={{ flex: 1, overflowY: 'auto', paddingBottom: 148 }}
         onClick={() => swipedId && setSwipedId(null)}
       >
         {grouped.length === 0 && (
@@ -322,11 +331,34 @@ export default function ListeScreen({ user }) {
         ))}
       </div>
 
-      {/* FAB */}
+      {/* Vider la liste — fixed just above the bottom nav */}
+      <div style={{
+        position: 'fixed', bottom: 64, left: 0, right: 0,
+        padding: '10px 16px',
+        background: '#fff',
+        borderTop: '1px solid var(--color-border)',
+        zIndex: 40,
+      }}>
+        <button
+          onClick={handleClearList}
+          disabled={totalCount === 0}
+          style={{
+            width: '100%', padding: '14px',
+            background: totalCount === 0 ? '#ccc' : 'var(--color-accent)',
+            color: '#fff', border: 'none', borderRadius: 12,
+            fontFamily: 'inherit', fontWeight: 700, fontSize: 15,
+            cursor: totalCount === 0 ? 'default' : 'pointer',
+          }}
+        >
+          Vider la liste
+        </button>
+      </div>
+
+      {/* FAB — above the "Vider la liste" bar */}
       <button
         onClick={() => setShowModal(true)}
         style={{
-          position: 'fixed', bottom: 80, right: 20,
+          position: 'fixed', bottom: 138, right: 20,
           width: 56, height: 56, borderRadius: '50%',
           background: 'var(--color-accent)', color: '#fff',
           border: 'none', fontSize: 28, lineHeight: 1,
