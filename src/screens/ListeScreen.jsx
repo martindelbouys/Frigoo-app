@@ -433,8 +433,42 @@ export default function ListeScreen({ user }) {
   return (
     <div style={{ flex: 1, position: 'relative', background: '#F6F6F7', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
+      {/* ── Brand header ── */}
+      <div style={{ background: '#FFE7DF', flexShrink: 0, overflow: 'hidden', position: 'relative' }}>
+        <div style={{ padding: '20px 16px 42px', position: 'relative' }}>
+          {/* Logo frigoo */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 8 }}>
+            <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: 54, fontWeight: 600, letterSpacing: -1, color: '#E8472A', lineHeight: 1 }}>
+              frig<span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                <span style={{ display: 'inline-flex', width: 32, height: 32, borderRadius: '50%', background: '#fff', border: '3px solid #E8472A', alignItems: 'center', justifyContent: 'center', marginTop: -4 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#15110F', display: 'block' }} />
+                </span>
+                <span style={{ display: 'inline-flex', width: 32, height: 32, borderRadius: '50%', background: '#fff', border: '3px solid #E8472A', alignItems: 'center', justifyContent: 'center', marginTop: -4 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#15110F', display: 'block' }} />
+                </span>
+              </span>
+            </div>
+          </div>
+          {/* Household card — overlaps bottom of header */}
+          <div style={{ position: 'absolute', bottom: -28, left: 16, right: 16, zIndex: 2 }}>
+            <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 11, border: 'none', background: '#fff', borderRadius: 15, padding: '11px 11px 11px 13px', cursor: 'pointer', textAlign: 'left', boxShadow: '0 2px 10px rgba(0,0,0,.06)' }}>
+              <span style={{ fontSize: 26, lineHeight: 1 }}>🏠</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-.5px', lineHeight: 1.1 }}>{user?.displayName?.split(' ')[0] ?? 'Ma liste'}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {user?.email ?? ''}
+                </div>
+              </div>
+              <span style={{ flexShrink: 0, fontSize: 9, fontWeight: 800, color: '#E8472A', textTransform: 'uppercase', letterSpacing: '.4px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                Ma liste
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* ── Search bar ── */}
-      <div style={{ background: '#fff', padding: '12px 16px 10px', borderBottom: '1px solid #F0F0F0', flexShrink: 0 }}>
+      <div style={{ background: '#fff', padding: '40px 16px 10px', borderBottom: '1px solid #F0F0F0', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F1F1F2', borderRadius: 13, padding: '0 12px', height: 44 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="2.2" strokeLinecap="round">
             <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" />
@@ -458,10 +492,10 @@ export default function ListeScreen({ user }) {
       </div>
 
       {/* ── Scrollable content ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: searching ? '14px 16px 110px' : '8px 16px 110px' }}>
+      <div style={{ flex: 1, overflowY: 'auto' }}>
         {searching ? (
           /* Search results */
-          <>
+          <div style={{ padding: '14px 16px 110px' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: '.3px', marginBottom: 10 }}>Résultats</div>
             {searchResults.length > 0 && (
               <div style={{ background: '#fff', border: '1px solid #F0F0F0', borderRadius: 18, overflow: 'hidden', marginBottom: 10 }}>
@@ -475,45 +509,76 @@ export default function ListeScreen({ user }) {
                 ))}
               </div>
             )}
-            {/* Add custom item */}
             <div style={{ background: '#fff', border: '1px solid #F0F0F0', borderRadius: 18, overflow: 'hidden' }}>
               <button
                 onClick={() => { setShowModal(true); setSearch('') }}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 11, padding: 14, border: 'none', background: '#FFFBFA', cursor: 'pointer', textAlign: 'left' }}
               >
-                <span style={tileStyle(38, 20, '#E8472A')}><span style={{ color: '#fff', fontWeight: 800, fontSize: 24 }}>+</span></span>
+                <span style={{ ...tileStyle(38, 20, '#E8472A'), color: '#fff', fontWeight: 800, fontSize: 24 }}>+</span>
                 <span style={{ flex: 1, fontSize: 15, fontWeight: 700 }}>Ajouter «&nbsp;{search.trim()}&nbsp;»</span>
               </button>
             </div>
-          </>
+          </div>
         ) : (
-          /* Normal grouped list */
-          grouped.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '60px 32px' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#9A9A9A' }}>
-                Recherche un article pour l'ajouter à ta liste.
+          /* Normal view: store card + sticky category pills + items */
+          <>
+            {/* Store card */}
+            <button style={{ width: 'calc(100% - 32px)', margin: '14px 16px 0', display: 'flex', alignItems: 'center', gap: 11, border: '1px solid #ECECEC', background: '#fff', borderRadius: 14, padding: '11px 13px', cursor: 'pointer', textAlign: 'left', boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+              <span style={{ width: 36, height: 36, flexShrink: 0, borderRadius: 11, background: '#EAF4FB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📍</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.3px', color: '#9A9A9A' }}>Magasin de cette liste</div>
+                <div style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Choisir un magasin</div>
               </div>
+              <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5, background: '#EAF4FB', color: '#2E86C9', borderRadius: 11, padding: '8px 12px', fontSize: 13, fontWeight: 800 }}>Changer</span>
+            </button>
+
+            {/* Category filter pills — sticky */}
+            <div style={{ position: 'sticky', top: 0, zIndex: 12, display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 16px 11px', background: '#F6F6F7', borderBottom: '1px solid #ECECEC' }}>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setShowModal(true)}
+                  style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 7, padding: '8px 13px 8px 9px', border: '1px solid #ECECEC', borderRadius: 13, background: '#fff', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}
+                >
+                  <span style={tileStyle(26, 15, CATEGORY_COLOR[cat] ?? '#F4F4F5')}>{CATEGORY_EMOJI[cat]}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    {cat.split(' & ')[0].split(' ')[0]}
+                  </span>
+                </button>
+              ))}
             </div>
-          ) : (
-            grouped.map(({ cat, items: catItems }) => (
-              <div key={cat} style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, margin: '0 4px 8px' }}>
-                  <span style={{ fontSize: 16 }}>{CATEGORY_EMOJI[cat]}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.3px', color: '#6B6B6B' }}>{cat}</span>
+
+            {/* Items */}
+            <div style={{ padding: '8px 16px 160px' }}>
+              {grouped.length === 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '32px 16px' }}>
+                  <div style={{ fontSize: 60, marginBottom: 16 }}>🛒</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#15110F80' }}>
+                    Recherche un article pour l'ajouter à ta liste.
+                  </div>
                 </div>
-                <div style={{ background: '#fff', border: '1px solid #F0F0F0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
-                  {catItems.map((item) => (
-                    <MainItem
-                      key={item.id}
-                      item={item}
-                      listId={listId}
-                      onMoveToFridge={handleMoveToFridge}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))
-          )
+              ) : (
+                grouped.map(({ cat, items: catItems }) => (
+                  <div key={cat} style={{ marginTop: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, margin: '0 4px 8px' }}>
+                      <span style={{ fontSize: 16 }}>{CATEGORY_EMOJI[cat]}</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.3px', color: '#6B6B6B' }}>{cat}</span>
+                    </div>
+                    <div style={{ background: '#fff', border: '1px solid #F0F0F0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,.03)' }}>
+                      {catItems.map((item) => (
+                        <MainItem
+                          key={item.id}
+                          item={item}
+                          listId={listId}
+                          onMoveToFridge={handleMoveToFridge}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         )}
       </div>
 
