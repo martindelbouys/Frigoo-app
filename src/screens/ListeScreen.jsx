@@ -22,18 +22,34 @@ export const CATEGORIES = [
 ]
 
 const CATEGORY_EMOJI = {
-  'Fruits & Légumes':   '🥦',
-  'Féculents & Céréales': '🍞',
-  'Produits Laitiers':  '🥛',
-  'Viandes & Poissons': '🥩',
-  'Matières Grasses':   '🧈',
-  'Surgelés':           '🧊',
-  'Boissons':           '🧃',
-  'Produits Sucrés':    '🍬',
-  'Apéro':              '🍷',
-  'Soin & Santé':       '💊',
-  'Produit Ménager':    '🧹',
-  'Foyer':              '🏠',
+  'Fruits & Légumes':    '🥦',
+  'Féculents & Céréales':'🍞',
+  'Produits Laitiers':   '🥛',
+  'Viandes & Poissons':  '🥩',
+  'Matières Grasses':    '🧈',
+  'Surgelés':            '🧊',
+  'Boissons':            '🧃',
+  'Produits Sucrés':     '🍬',
+  'Apéro':               '🍷',
+  'Soin & Santé':        '💊',
+  'Produit Ménager':     '🧹',
+  'Foyer':               '🏠',
+}
+
+// Exact colors from design reference (cats array in bundle)
+const CATEGORY_COLOR = {
+  'Fruits & Légumes':    '#EAF7EC',
+  'Féculents & Céréales':'#FBF1E3',
+  'Produits Laitiers':   '#EAF2FB',
+  'Viandes & Poissons':  '#FBEBEC',
+  'Matières Grasses':    '#FCF6E3',
+  'Surgelés':            '#E7F6FB',
+  'Boissons':            '#F0EBFB',
+  'Produits Sucrés':     '#FBEDF4',
+  'Apéro':               '#FCF0E5',
+  'Soin & Santé':        '#E6F6F3',
+  'Produit Ménager':     '#EFF7E4',
+  'Foyer':               '#F0F1F3',
 }
 
 async function getOrCreateList(uid) {
@@ -76,66 +92,73 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
     if (isOpen) setSwipedId(null)
   }
 
+  const tileBg = CATEGORY_COLOR[item.category] ?? '#F4F4F5'
+
   return (
     <div style={{
       position: 'relative', overflow: 'hidden',
-      borderRadius: 12, margin: '0 16px 5px',
+      borderRadius: 16, margin: '0 16px 9px',
+      boxShadow: '0 2px 10px rgba(0,0,0,.06)',
     }}>
+      {/* Delete action revealed by swipe */}
       <div
         style={{
           position: 'absolute', right: 0, top: 0, bottom: 0,
           background: 'var(--color-accent)',
           display: 'flex', alignItems: 'center',
-          padding: '0 20px', cursor: 'pointer',
+          padding: '0 22px', cursor: 'pointer',
         }}
         onClick={handleDelete}
       >
-        <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Supprimer</span>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Supprimer</span>
       </div>
 
+      {/* Item row */}
       <div
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleRowClick}
         style={{
           display: 'flex', alignItems: 'center', gap: 12,
-          padding: '15px 14px',
+          padding: '14px',
           background: '#fff',
-          transform: isOpen ? 'translateX(-100px)' : 'translateX(0)',
+          transform: isOpen ? 'translateX(-104px)' : 'translateX(0)',
           transition: 'transform 0.22s ease',
           position: 'relative',
         }}
       >
+        {/* Checkbox — 27×27, white bg, #DBDBDB border when unchecked */}
         <button
           onClick={toggleChecked}
           style={{
-            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-            border: `2px solid ${item.checked ? 'var(--color-accent)' : '#C8C8C8'}`,
-            background: item.checked ? 'var(--color-accent)' : 'transparent',
+            width: 27, height: 27, borderRadius: '50%', flexShrink: 0,
+            border: `2px solid ${item.checked ? 'var(--color-accent)' : '#DBDBDB'}`,
+            background: item.checked ? 'var(--color-accent)' : '#fff',
             cursor: 'pointer', padding: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
           {item.checked && (
-            <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-              <path d="M1 4.5L4 7.5L10 1" stroke="#fff" strokeWidth="1.8"
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+              <path d="M1 5L4.5 8.5L11 1" stroke="#fff" strokeWidth="1.8"
                 strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
 
+        {/* Emoji thumbnail — tile(38, 20, catColor) → 38×38, borderRadius 11, fontSize 20 */}
         <div style={{
-          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-          background: '#F4F4F5',
+          width: 38, height: 38, borderRadius: 11, flexShrink: 0,
+          background: tileBg,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 18,
+          fontSize: 20,
         }}>
           {CATEGORY_EMOJI[item.category] ?? '🛒'}
         </div>
 
         <span style={{
-          fontSize: 15, lineHeight: 1.4, fontWeight: 500,
-          color: item.checked ? 'var(--color-text-tertiary)' : 'var(--color-text)',
+          fontSize: 15, lineHeight: 1.4, fontWeight: 700,
+          color: item.checked ? '#B7B7B7' : '#15110F',
           textDecoration: item.checked ? 'line-through' : 'none',
           flex: 1,
         }}>
@@ -272,28 +295,62 @@ export default function ListeScreen({ user }) {
 
   const checkedCount = items.filter((i) => i.checked).length
   const totalCount = items.length
+  const progressPct = totalCount ? Math.round(checkedCount / totalCount * 100) : 0
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-      {/* Header */}
+
+      {/* ── Header ── */}
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 16px 14px',
         background: '#fff',
         boxShadow: '0 1px 0 var(--color-border)',
         flexShrink: 0,
+        padding: '14px 16px 16px',
       }}>
-        <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-text)' }}>
-          Dans ma liste, il y a…
-        </span>
-        <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)', fontWeight: 500 }}>
-          {checkedCount}/{totalCount} pris
-        </span>
+        {/* Row 1: back button + title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <button style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: '#F0F0F0', border: 'none', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+          }}>
+            <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
+              <path d="M8 1L1 8L8 15" stroke="#15110F" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <span style={{ fontSize: 20, fontWeight: 700, color: '#15110F', flex: 1 }}>
+            Dans ma liste, il y a…
+          </span>
+        </div>
+
+        {/* Row 2: progress bar + counter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            flex: 1, height: 6, borderRadius: 5,
+            background: '#F0F0F0', overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%', borderRadius: 5,
+              background: 'var(--color-accent)',
+              width: `${progressPct}%`,
+              transition: 'width .25s',
+            }} />
+          </div>
+          <span style={{
+            fontSize: 13, fontWeight: 500,
+            color: 'var(--color-text-tertiary)',
+            flexShrink: 0,
+          }}>
+            {checkedCount}/{totalCount} pris
+          </span>
+        </div>
       </div>
 
-      {/* Items list */}
+      {/* ── Items list ── */}
       <div
-        style={{ flex: 1, overflowY: 'auto', paddingBottom: 148 }}
+        style={{ flex: 1, overflowY: 'auto', paddingTop: 10, paddingBottom: 152 }}
         onClick={() => swipedId && setSwipedId(null)}
       >
         {grouped.length === 0 && (
@@ -308,7 +365,7 @@ export default function ListeScreen({ user }) {
         )}
         {grouped.map(({ cat, items: catItems }) => (
           <div key={cat}>
-            <div style={{ padding: '16px 16px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ padding: '10px 16px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 14 }}>{CATEGORY_EMOJI[cat]}</span>
               <span style={{
                 fontSize: 11, fontWeight: 700,
@@ -331,12 +388,11 @@ export default function ListeScreen({ user }) {
         ))}
       </div>
 
-      {/* Vider la liste — fixed just above the bottom nav */}
+      {/* ── Vider la liste — 16px margins on all sides, above nav ── */}
       <div style={{
         position: 'fixed', bottom: 64, left: 0, right: 0,
-        padding: '10px 16px',
+        padding: '10px 16px 12px',
         background: '#fff',
-        borderTop: '1px solid var(--color-border)',
         zIndex: 40,
       }}>
         <button
@@ -345,7 +401,7 @@ export default function ListeScreen({ user }) {
           style={{
             width: '100%', padding: '14px',
             background: totalCount === 0 ? '#ccc' : 'var(--color-accent)',
-            color: '#fff', border: 'none', borderRadius: 12,
+            color: '#fff', border: 'none', borderRadius: 14,
             fontFamily: 'inherit', fontWeight: 700, fontSize: 15,
             cursor: totalCount === 0 ? 'default' : 'pointer',
           }}
@@ -354,16 +410,16 @@ export default function ListeScreen({ user }) {
         </button>
       </div>
 
-      {/* FAB — above the "Vider la liste" bar */}
+      {/* ── FAB — above the "Vider" bar ── */}
       <button
         onClick={() => setShowModal(true)}
         style={{
-          position: 'fixed', bottom: 138, right: 20,
+          position: 'fixed', bottom: 150, right: 20,
           width: 56, height: 56, borderRadius: '50%',
           background: 'var(--color-accent)', color: '#fff',
           border: 'none', fontSize: 28, lineHeight: 1,
           cursor: 'pointer', zIndex: 50,
-          boxShadow: '0 4px 16px rgba(232,71,42,0.4)',
+          boxShadow: '0 6px 18px rgba(232,71,42,.34)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'inherit',
         }}
@@ -372,7 +428,7 @@ export default function ListeScreen({ user }) {
         +
       </button>
 
-      {/* Modal */}
+      {/* ── Modal ── */}
       {showModal && listId && (
         <AddItemModal listId={listId} onClose={() => setShowModal(false)} />
       )}
