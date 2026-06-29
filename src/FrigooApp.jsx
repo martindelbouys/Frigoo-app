@@ -140,7 +140,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
       if (!cancelled) setLoading(false)
     }
-    boot().catch(console.error)
+    boot().catch(e => { console.error('boot error:', e); if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [uid])
 
