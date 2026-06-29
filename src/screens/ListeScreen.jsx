@@ -97,8 +97,8 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
   return (
     <div style={{
       position: 'relative', overflow: 'hidden',
-      borderRadius: 16, margin: '0 16px 9px',
-      boxShadow: '0 2px 10px rgba(0,0,0,.06)',
+      borderRadius: 14, margin: '0 16px 8px',
+      boxShadow: '0 1px 4px rgba(0,0,0,.06)',
     }}>
       {/* Delete action revealed by swipe */}
       <div
@@ -305,22 +305,21 @@ export default function ListeScreen({ user }) {
         background: '#fff',
         boxShadow: '0 1px 0 var(--color-border)',
         flexShrink: 0,
-        padding: '14px 16px 16px',
+        padding: '12px 20px 16px',
       }}>
         {/* Row 1: back button + title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
           <button style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: '#F0F0F0', border: 'none', flexShrink: 0,
+            background: 'none', border: 'none', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
+            cursor: 'pointer', padding: '4px 6px 4px 0',
           }}>
             <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
-              <path d="M8 1L1 8L8 15" stroke="#15110F" strokeWidth="2"
+              <path d="M8 1L1 8L8 15" stroke="#15110F" strokeWidth="2.2"
                 strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <span style={{ fontSize: 20, fontWeight: 700, color: '#15110F', flex: 1 }}>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#15110F', flex: 1, lineHeight: 1.2 }}>
             Dans ma liste, il y a…
           </span>
         </div>
@@ -328,8 +327,8 @@ export default function ListeScreen({ user }) {
         {/* Row 2: progress bar + counter */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            flex: 1, height: 6, borderRadius: 5,
-            background: '#F0F0F0', overflow: 'hidden',
+            flex: 1, height: 4, borderRadius: 5,
+            background: '#EBEBEB', overflow: 'hidden',
           }}>
             <div style={{
               height: '100%', borderRadius: 5,
@@ -365,12 +364,19 @@ export default function ListeScreen({ user }) {
         )}
         {grouped.map(({ cat, items: catItems }) => (
           <div key={cat}>
-            <div style={{ padding: '10px 16px 6px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 14 }}>{CATEGORY_EMOJI[cat]}</span>
+            <div style={{ padding: '12px 16px 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                background: CATEGORY_COLOR[cat] ?? '#F4F4F5',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 15,
+              }}>
+                {CATEGORY_EMOJI[cat]}
+              </div>
               <span style={{
                 fontSize: 11, fontWeight: 700,
                 color: 'var(--color-text-secondary)',
-                textTransform: 'uppercase', letterSpacing: '0.6px',
+                textTransform: 'uppercase', letterSpacing: '0.7px',
               }}>
                 {cat}
               </span>
