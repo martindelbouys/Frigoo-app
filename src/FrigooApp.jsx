@@ -553,8 +553,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     },
   }))
 
-  // ── Tab styles — flex:0 0 25% garantit 4 colonnes égales sur iOS Safari ──
-  const tabStyle = (on) => ({ flex:'0 0 25%', minWidth:0, border:'none', background:'transparent', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2, color:on?'#E8472A':'#A6A6A6', padding:'6px 0', overflow:'hidden' })
+  // tabStyle supprimé — la nav utilise la classe CSS .fg-nav
 
   // ── Budget / prefs mutations ───────────────────────────────────────────────
   const budgetUp   = async () => { const n=budget+10; setBudget(n); await updateDoc(userRef(), { budget:n }) }
@@ -612,8 +611,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     comingSoon:()=>flash('Bientôt disponible 🐧'),
     pickPhoto:()=>flash('📷 Photo — bientôt disponible'),
     isFab:false,
-    tListe:tabStyle(tab==='liste'), tCuisine:tabStyle(tab==='cuisine'),
-    tDepenses:tabStyle(tab==='depenses'), tParams:tabStyle(tab==='params'),
     goListe:()=>{ setTab('liste'); setOverlay(null) },
     goCuisine:()=>{ setTab('cuisine'); setOverlay(null) },
     goDepenses:()=>{ setTab('depenses'); setOverlay(null) },
@@ -650,13 +647,13 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
         {overlay==='clear'       && <ClearConfirmOverlay  {...p} />}
       </div>
 
-      {/* Bottom nav — grid garantit 4 colonnes strictement égales sur tous les iOS */}
-      <div className="safe-bottom" style={{ flexShrink:0, display:'grid', gridTemplateColumns:'repeat(4,1fr)', background:'#fff', borderTop:'1px solid #EFEFEF', paddingTop:8, paddingBottom:0, paddingLeft:4, paddingRight:4 }}>
-        <TabBtn style={p.tListe}    onClick={p.goListe}    icon={<IconListe    active={tab==='liste'} />}    label="Liste" />
-        <TabBtn style={p.tCuisine}  onClick={p.goCuisine}  icon={<IconCuisine  active={tab==='cuisine'} />}  label="Recettes" />
-        <TabBtn style={p.tDepenses} onClick={p.goDepenses} icon={<IconDepenses active={tab==='depenses'} />} label="Dépenses" />
-        <TabBtn style={p.tParams}   onClick={p.goParams}   icon={<IconParams   active={tab==='params'} />}   label="Réglages" />
-      </div>
+      {/* Bottom nav — classe fg-nav : grid CSS pur, safe-area géré sans conflit inline */}
+      <nav className="fg-nav">
+        <TabBtn active={tab==='liste'}    color="#E8472A" onClick={p.goListe}    icon={<IconListe    active={tab==='liste'} />}    label="Liste" />
+        <TabBtn active={tab==='cuisine'}  color="#E8472A" onClick={p.goCuisine}  icon={<IconCuisine  active={tab==='cuisine'} />}  label="Recettes" />
+        <TabBtn active={tab==='depenses'} color="#E8472A" onClick={p.goDepenses} icon={<IconDepenses active={tab==='depenses'} />} label="Dépenses" />
+        <TabBtn active={tab==='params'}   color="#E8472A" onClick={p.goParams}   icon={<IconParams   active={tab==='params'} />}   label="Réglages" />
+      </nav>
 
       {toast && (
         <div style={{ position:'absolute', bottom:'calc(80px + env(safe-area-inset-bottom, 0px))', left:'50%', transform:'translateX(-50%)', background:'#15110F', color:'#fff', padding:'10px 18px', borderRadius:14, fontSize:14, fontWeight:700, whiteSpace:'nowrap', zIndex:200, animation:'fgToast .2s ease forwards', pointerEvents:'none' }}>
@@ -667,11 +664,11 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   )
 }
 
-function TabBtn({ style, onClick, icon, label }) {
+function TabBtn({ active, color, onClick, icon, label }) {
   return (
-    <button onClick={onClick} style={style}>
+    <button onClick={onClick} style={{ color: active ? color : '#A6A6A6' }}>
       {icon}
-      <span style={{ fontSize:11, fontWeight:800, whiteSpace:'nowrap', letterSpacing:-.2 }}>{label}</span>
+      <span className="label">{label}</span>
     </button>
   )
 }
