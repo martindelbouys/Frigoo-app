@@ -146,12 +146,103 @@ function SwipeableItem({ item, listId, swipedId, setSwipedId }) {
   )
 }
 
+function AddItemModal({ listId, onClose }) {
+  const [name, setName] = useState('')
+  const [category, setCategory] = useState(CATEGORIES[0])
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }, [])
+
+  const handleAdd = (e) => {
+    e.preventDefault()
+    if (!name.trim()) return
+    addDoc(collection(db, 'lists', listId, 'items'), {
+      name: name.trim(),
+      category,
+      checked: false,
+      createdAt: serverTimestamp(),
+    })
+    onClose()
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex', alignItems: 'flex-end',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%', background: '#fff',
+          borderRadius: '20px 20px 0 0',
+          padding: '24px 20px 36px',
+          display: 'flex', flexDirection: 'column', gap: 14,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{
+          width: 36, height: 4, borderRadius: 2,
+          background: '#E0E0E0', alignSelf: 'center', marginBottom: 4,
+        }} />
+
+        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text)' }}>
+          Ajouter un article
+        </span>
+
+        <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input
+            ref={inputRef}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nom de l'article…"
+            style={{
+              padding: '13px 14px',
+              borderRadius: 12, border: '1px solid var(--color-border)',
+              fontSize: 15, fontFamily: 'inherit', color: 'var(--color-text)',
+              outline: 'none', background: 'var(--color-bg-card)',
+            }}
+          />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            style={{
+              padding: '13px 14px',
+              borderRadius: 12, border: '1px solid var(--color-border)',
+              fontSize: 15, fontFamily: 'inherit', color: 'var(--color-text)',
+              background: 'var(--color-bg-card)', outline: 'none',
+            }}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{CATEGORY_EMOJI[c]} {c}</option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            style={{
+              background: 'var(--color-accent)', color: '#fff',
+              border: 'none', borderRadius: 12, padding: '14px',
+              fontFamily: 'inherit', fontWeight: 700, fontSize: 16,
+              cursor: 'pointer', marginTop: 4,
+            }}
+          >
+            Ajouter
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function ListeScreen({ user }) {
   const [listId, setListId] = useState(null)
   const [items, setItems] = useState([])
-  const [name, setName] = useState('')
-  const [category, setCategory] = useState(CATEGORIES[0])
   const [swipedId, setSwipedId] = useState(null)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
     getOrCreateList(user.uid).then(setListId)
@@ -165,18 +256,6 @@ export default function ListeScreen({ user }) {
     )
     return unsubscribe
   }, [listId])
-
-  const handleAdd = (e) => {
-    e.preventDefault()
-    if (!name.trim() || !listId) return
-    addDoc(collection(db, 'lists', listId, 'items'), {
-      name: name.trim(),
-      category,
-      checked: false,
-      createdAt: serverTimestamp(),
-    })
-    setName('')
-  }
 
   const grouped = CATEGORIES
     .map((cat) => ({ cat, items: items.filter((i) => i.category === cat) }))
@@ -203,56 +282,9 @@ export default function ListeScreen({ user }) {
         </span>
       </div>
 
-      {/* Add form */}
-      <form
-        onSubmit={handleAdd}
-        style={{
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex', flexDirection: 'column', gap: 8,
-        }}
-      >
-        <div style={{ display: 'flex', gap: 8 }}>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nom de l'article…"
-            style={{
-              flex: 1, padding: '10px 12px',
-              borderRadius: 10, border: '1px solid var(--color-border)',
-              fontSize: 15, fontFamily: 'inherit', color: 'var(--color-text)',
-              outline: 'none',
-            }}
-          />
-          <button
-            type="submit"
-            style={{
-              background: 'var(--color-accent)', color: '#fff',
-              border: 'none', borderRadius: 10, padding: '10px 18px',
-              fontFamily: 'inherit', fontWeight: 700, fontSize: 15,
-              cursor: 'pointer', flexShrink: 0,
-            }}
-          >
-            Ajouter
-          </button>
-        </div>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={{
-            padding: '9px 12px',
-            borderRadius: 10, border: '1px solid var(--color-border)',
-            fontSize: 14, fontFamily: 'inherit', color: 'var(--color-text)',
-            background: 'var(--color-bg-card)', outline: 'none',
-          }}
-        >
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </form>
-
       {/* Items list */}
       <div
-        style={{ flex: 1, overflowY: 'auto', paddingBottom: 32 }}
+        style={{ flex: 1, overflowY: 'auto', paddingBottom: 96 }}
         onClick={() => swipedId && setSwipedId(null)}
       >
         {grouped.length === 0 && (
@@ -262,7 +294,7 @@ export default function ListeScreen({ user }) {
             padding: '56px 24px',
             fontSize: 15,
           }}>
-            Votre liste est vide.<br />Ajoutez votre premier article ci-dessus.
+            Votre liste est vide.<br />Appuyez sur + pour ajouter un article.
           </p>
         )}
         {grouped.map(({ cat, items: catItems }) => (
@@ -289,6 +321,29 @@ export default function ListeScreen({ user }) {
           </div>
         ))}
       </div>
+
+      {/* FAB */}
+      <button
+        onClick={() => setShowModal(true)}
+        style={{
+          position: 'fixed', bottom: 80, right: 20,
+          width: 56, height: 56, borderRadius: '50%',
+          background: 'var(--color-accent)', color: '#fff',
+          border: 'none', fontSize: 28, lineHeight: 1,
+          cursor: 'pointer', zIndex: 50,
+          boxShadow: '0 4px 16px rgba(232,71,42,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'inherit',
+        }}
+        aria-label="Ajouter un article"
+      >
+        +
+      </button>
+
+      {/* Modal */}
+      {showModal && listId && (
+        <AddItemModal listId={listId} onClose={() => setShowModal(false)} />
+      )}
     </div>
   )
 }
