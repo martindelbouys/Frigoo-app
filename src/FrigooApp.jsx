@@ -126,8 +126,17 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
         seeds.forEach(s => batch.set(doc(itemsRef(lid)), { ...s, createdAt:serverTimestamp() }))
         await batch.commit()
         await updateDoc(userRef(), { activeListId:lid })
-      } else if (!data.activeListId) {
-        await updateDoc(userRef(), { activeListId:docs[0].id })
+      } else {
+        // Nettoie les doublons "Ma liste" vides
+        const activeId = data.activeListId || docs[0].id
+        for (const d of docs) {
+          if (d.id === activeId) continue
+          const iItems = await getDocs(itemsRef(d.id))
+          if (iItems.empty && d.data().name === 'Ma liste') {
+            await deleteDoc(doc(collection(db, 'lists'), d.id))
+          }
+        }
+        if (!data.activeListId) await updateDoc(userRef(), { activeListId:activeId })
       }
 
       // Seed default recipes if none
