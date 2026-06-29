@@ -165,8 +165,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
       setLists(snap.docs.map(d => ({ id:d.id, ...d.data() })))
     }))
 
-    // Recipes
-    unsubs.push(onSnapshot(query(recipesRef(), orderBy('createdAt', 'asc')), snap => {
+    // Recipes (sans orderBy pour éviter l'index Firestore manquant)
+    unsubs.push(onSnapshot(recipesRef(), snap => {
       setRecipes(snap.docs.map(d => ({ id:d.id, ...d.data() })))
     }))
 
@@ -208,7 +208,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     return s ? s.factor : 1
   }
 
-  const active   = lists.find(l => l.id === activeListId) || { name:'Ma liste', emoji:'🙂', members:[uid], store:'Carrefour', city:'' }
+  const active   = lists.find(l => l.id === activeListId) || lists[0] || { name:'Ma liste', emoji:'🙂', members:[uid], store:'Carrefour', city:'' }
   const mine     = articles.filter(a => a.listId === activeListId)
   const inList   = mine.filter(a => a.place === 'liste')
   const inFridge = mine.filter(a => a.place === 'frigo')
@@ -484,9 +484,10 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Lists manager ──────────────────────────────────────────────────────────
   const itemsCount = (id) => articles.filter(a => a.listId === id && a.place === 'liste').length
   const myLists = lists.map(l => ({
-    emoji:l.emoji, name:l.name,
-    membersLabel:(l.members?.length===1?'Toi seul':((l.members?.length||1)+' membres'))+(l.store?('  ·  📍 '+l.store):''),
-    itemsLabel:itemsCount(l.id)+' articles',
+    emoji:l.emoji||'📝', name:l.name,
+    subLabel:(l.members?.length===1?'Toi seul':((l.members?.length||1)+' membres'))
+      +(l.store?(' · 📍 '+l.store+(l.city?' · '+l.city:'')):'')
+      +(' · '+itemsCount(l.id)+' article'+(itemsCount(l.id)!==1?'s':'')),
     active:l.id===activeListId,
     cardStyle:{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', borderRadius:16, background:'#fff', cursor:'pointer', border:l.id===activeListId?'2px solid #E8472A':'1px solid #F0F0F0', boxShadow:l.id===activeListId?'0 4px 14px rgba(232,71,42,.12)':'none' },
     canLeave:lists.length>1,
@@ -562,7 +563,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const p = {
     tab, setTab, overlay, setOverlay, flash, search, setSearch,
     activeListId, activeListName:active.name, activeListEmoji:active.emoji,
-    activeMembersLabel:(active.members||[]).join(', '),
+    activeMembersLabel:(active.members||[]).length<=1?'Toi seul':((active.members||[]).length+' membres'),
     fridgeCount:inFridge.length, cartCount:inList.length,
     searching, notSearching:!searching, searchResults,
     onAddCustom:()=>{ const n=search.trim(); if(n){ addToList(n,'foyer',1.50); setSearch('') } },
@@ -624,7 +625,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   return (
     <div style={{ maxWidth:430, margin:'0 auto', height:'100svh', display:'flex', flexDirection:'column', overflow:'hidden', background:'#F6F6F7', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif", WebkitFontSmoothing:'antialiased', color:'#15110F', position:'relative' }}>
-      <div style={{ flex:1, minHeight:0, position:'relative' }}>
+      <div style={{ flex:1, minHeight:0, position:'relative', overflow:'hidden' }}>
         {tab==='liste'    && <ListeScreen     {...p} />}
         {tab==='cuisine'  && <CuisineScreen   {...p} />}
         {tab==='depenses' && <DepensesScreen  {...p} />}

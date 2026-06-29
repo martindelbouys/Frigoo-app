@@ -21,7 +21,7 @@ export default function ListsManagerOverlay(p) {
                   <span style={{ width:44, height:44, flexShrink:0, borderRadius:12, background:'#F4F4F5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{l.emoji}</span>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontSize:15, fontWeight:800 }}>{l.name}</div>
-                    <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A' }}>{l.membersLabel}</div>
+                    <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A', marginTop:2 }}>{l.subLabel}</div>
                   </div>
                 </button>
                 {l.active && <span style={{ flexShrink:0, fontSize:11, fontWeight:800, color:'#E8472A', background:'#FDEDE9', padding:'5px 10px', borderRadius:9 }}>ACTIVE</span>}

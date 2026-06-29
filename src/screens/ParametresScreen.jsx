@@ -29,7 +29,7 @@ export default function ParametresScreen(p) {
                 <span style={{ width:46, height:46, flexShrink:0, borderRadius:13, background:'#F4F4F5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>{l.emoji}</span>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:16, fontWeight:800 }}>{l.name}</div>
-                  <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A' }}>{l.membersLabel} · {l.itemsLabel}</div>
+                  <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A', marginTop:2 }}>{l.subLabel}</div>
                 </div>
               </button>
               {l.active && <span style={{ flexShrink:0, fontSize:11, fontWeight:800, color:'#E8472A', background:'#FDEDE9', padding:'5px 10px', borderRadius:9 }}>ACTIVE</span>}

@@ -17,7 +17,7 @@ export default function ListeScreen(p) {
                 <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
                 <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
               </div>
-              <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>
+              {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
               <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3L4 7l4 4"/><path d="M4 7h11a5 5 0 0 1 0 10h-1"/></svg>
                 Changer
