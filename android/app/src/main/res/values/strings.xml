@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Frigoo</string>
+    <string name="title_activity_main">Frigoo</string>
+    <string name="package_name">com.frigoo.app</string>
+    <string name="custom_url_scheme">com.frigoo.app</string>
+</resources>
