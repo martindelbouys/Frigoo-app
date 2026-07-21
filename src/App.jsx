@@ -41,13 +41,18 @@ export default function App() {
   const signIn = async () => {
     setSigningIn(true)
     setError('')
+    const stuckTimer = setTimeout(() => {
+      setError('La fenêtre de connexion ne s\'ouvre pas. Ton navigateur bloque peut-être les popups (Safari en navigation privée, bloqueur de pub…) : autorise les popups pour ce site et réessaie.')
+    }, 8000)
     try {
       if (isMobile) {
         await signInWithRedirect(auth, provider)
       } else {
         await signInWithPopup(auth, provider)
       }
+      clearTimeout(stuckTimer)
     } catch (e) {
+      clearTimeout(stuckTimer)
       setSigningIn(false)
       setError(e.message)
     }

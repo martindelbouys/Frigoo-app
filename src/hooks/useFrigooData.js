@@ -36,6 +36,10 @@ export function useFrigooData(uid, userEmail, flash) {
     if (loading) return
 
     const unsubs = []
+    const onError = (label) => (e) => {
+      console.error(label, e)
+      flash('Connexion perdue (' + label + '), recharge la page')
+    }
 
     // User profile
     unsubs.push(onSnapshot(userRef(uid), snap => {
@@ -46,26 +50,26 @@ export function useFrigooData(uid, userEmail, flash) {
       if (d.activeListId) setActiveListId(d.activeListId)
       if (d.name !== undefined) setUserName(d.name)
       if (d.photoURL !== undefined) setUserPhoto(d.photoURL)
-    }))
+    }, onError('profil')))
 
     // Lists
     const listsQ = query(collection(db, 'lists'), where('members', 'array-contains', uid))
     unsubs.push(onSnapshot(listsQ, snap => {
       setLists(snap.docs.map(d => ({ id:d.id, ...d.data() })))
-    }))
+    }, onError('listes')))
 
     // Recipes (sans orderBy pour éviter l'index Firestore manquant)
     unsubs.push(onSnapshot(recipesRef(uid), snap => {
       setRecipes(snap.docs.map(d => ({ id:d.id, ...d.data() })))
-    }))
+    }, onError('recettes')))
 
     // Expenses
     unsubs.push(onSnapshot(query(expensesRef(uid), orderBy('createdAt', 'desc')), snap => {
       setExpenses(snap.docs.map(d => ({ id:d.id, ...d.data() })))
-    }))
+    }, onError('dépenses')))
 
     return () => unsubs.forEach(u => u())
-  }, [uid, loading])
+  }, [uid, loading, flash])
 
   // ── Items listeners (one per list) ─────────────────────────────────────────
   useEffect(() => {
@@ -78,10 +82,10 @@ export function useFrigooData(uid, userEmail, flash) {
       onSnapshot(itemsRef(list.id), snap => {
         const items = snap.docs.map(d => ({ id:d.id, ...d.data(), listId:list.id }))
         setArticles(prev => [...prev.filter(a => a.listId !== list.id), ...items])
-      })
+      }, (e) => { console.error('articles', e); flash('Connexion perdue (articles), recharge la page') })
     )
     return () => unsubs.forEach(u => u())
-  }, [lists.map(l => l.id).sort().join(',')])
+  }, [lists.map(l => l.id).sort().join(','), flash])
 
   // ── Budget / prefs mutations ───────────────────────────────────────────────
   const budgetUp = useCallback(async () => {
