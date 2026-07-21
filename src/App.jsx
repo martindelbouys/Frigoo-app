@@ -4,6 +4,7 @@ import { auth } from './firebase'
 import FrigooApp from './FrigooApp'
 
 const provider = new GoogleAuthProvider()
+provider.setCustomParameters({ prompt: 'select_account' })
 
 function LoginScreen({ onSignIn, loading, error }) {
   return (
