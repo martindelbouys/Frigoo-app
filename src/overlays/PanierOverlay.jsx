@@ -8,12 +8,13 @@ function BackBtn({ onClick }) {
 
 export default function PanierOverlay(p) {
   return (
-    <div style={{ position:'absolute', inset:0, zIndex:40, background:'#F6F6F7', display:'flex', flexDirection:'column' }}>
-      <div style={{ background:'#fff', padding:'16px 16px 14px', paddingTop:'max(54px, calc(env(safe-area-inset-top) + 14px))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
+    <div style={{ position:'absolute', inset:0, zIndex:40, background:'#F2F2F2', display:'flex', flexDirection:'column' }}>
+      <div style={{ background:'#fff', padding:'16px 16px 14px', paddingTop:'max(44px, env(safe-area-inset-top))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <BackBtn onClick={p.closeOverlay} />
-          <div style={{ flex:1 }}>
+          <div style={{ flex:1, display:'flex', alignItems:'center', gap:8 }}>
             <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.4px' }}>Dans ma liste, il y a...</div>
+            {p.panierNotEmpty && <img src="/uploads/penguin-cart-full.png" alt="" style={{ height:34, width:'auto', display:'block' }} />}
           </div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:12 }}>
@@ -25,12 +26,9 @@ export default function PanierOverlay(p) {
       </div>
       <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'8px 16px 16px' }}>
         {p.panierEmpty && (
-          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', padding:'50px 32px' }}>
-            <div style={{ width:130, height:130, borderRadius:'50%', background:'#EAF4FB', border:'2px dashed #BBD9EC', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-              <span style={{ fontSize:50 }}>🐧</span>
-              <span style={{ fontSize:9, fontWeight:700, color:'#8FB4CC', textTransform:'uppercase', letterSpacing:.4 }}>mascotte</span>
-            </div>
-            <div style={{ fontSize:19, fontWeight:800, marginTop:18 }}>Panier vide</div>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', padding:'32px 16px' }}>
+            <img src="/uploads/penguin-cart-empty.png" alt="Frigoo" style={{ width:'100%', maxWidth:220, height:'auto', display:'block' }} />
+            <div style={{ fontSize:19, fontWeight:800, marginTop:12 }}>Mon dieu, je n'ai rien prévu à manger !</div>
             <div style={{ fontSize:14, fontWeight:600, color:'#8A8A8A', marginTop:6 }}>Ajoute des articles depuis ta liste.</div>
           </div>
         )}
@@ -48,6 +46,7 @@ export default function PanierOverlay(p) {
                   </span>
                   <span style={it.tileStyle}>{it.emoji}</span>
                   <span style={it.nameStyle}>{it.name} {it.qtyLabel}</span>
+                  {it.priceLabel && <span style={it.priceBadgeStyle} title={it.priceTierTitle}>{it.priceLabel}</span>}
                 </button>
               ))}
             </div>

@@ -1,31 +1,58 @@
+import { useEffect } from 'react'
+
 export default function ListeScreen(p) {
+  useEffect(() => {
+    if (!p.listDropOpen) return
+    const close = () => p.closeListDrop()
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [p.listDropOpen])
+
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F6F6F7', position:'relative' }}>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative' }}>
       {/* Brand header */}
-      <div ref={p.brandRef} style={{ background:'#FFE7DF', flexShrink:0, overflow:'hidden' }}>
-        <div style={{ position:'relative', padding:'120px 16px 34px' }}>
-          <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:42, pointerEvents:'none', overflow:'hidden' }}>
-            <div style={{ display:'flex', alignItems:'center', fontFamily:"'Fredoka',sans-serif", fontSize:76, fontWeight:600, letterSpacing:-1, color:'#E8472A', lineHeight:1 }}>
-              <span>frig</span>
-              <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:66, width:'auto', marginLeft:1, transform:'translateY(19px)', display:'block' }} />
+      <div ref={p.brandRef} className="brand-header" style={{ background:'#FFE7DF', flexShrink:0 }}>
+        <div className="brand-header-inner" style={{ position:'relative', paddingTop:'max(14px, env(safe-area-inset-top))', paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, marginBottom:14 }}>
+            <span>frig</span>
+            <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
+          </div>
+          <button onClick={e=>{ e.stopPropagation(); p.toggleListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)' }}>
+            <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
+              <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
             </div>
-          </div>
-          <div style={{ position:'relative', zIndex:1 }}>
-            <button onClick={p.openListsMgr} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)', position:'relative', top:25 }}>
-              <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
-                <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
-              </div>
-              {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
-              <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3L4 7l4 4"/><path d="M4 7h11a5 5 0 0 1 0 10h-1"/></svg>
-                Changer
-              </span>
-            </button>
-          </div>
+            {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
+            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: p.listDropOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+              Changer
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* Inline list dropdown */}
+      {p.listDropOpen && (
+        <div style={{ background:'#FFE7DF', flexShrink:0, padding:'28px 14px 16px' }}>
+          {p.myLists.map((l, i) => (
+            <button key={i} onClick={e=>{ e.stopPropagation(); l.onSelect(); p.closeListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:13, border:'none', borderRadius:16, background: l.active ? '#fff' : 'rgba(255,255,255,0.55)', padding:'13px 14px', cursor:'pointer', textAlign:'left', marginBottom: i < p.myLists.length - 1 ? 8 : 0, boxShadow: l.active ? '0 3px 12px rgba(232,71,42,.14)' : 'none' }}>
+              <span style={{ width:42, height:42, flexShrink:0, borderRadius:13, background: l.active ? '#FDEDE9' : '#FFF4F1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{l.emoji}</span>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:16, fontWeight:800, color:'#15110F', lineHeight:1.2 }}>{l.name}</div>
+                <div style={{ fontSize:11.5, fontWeight:700, color: l.active ? '#E8472A' : '#9A9A9A', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{l.subLabel}</div>
+              </div>
+              {l.active && (
+                <span style={{ flexShrink:0, width:26, height:26, borderRadius:8, background:'#E8472A', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5l3.5 3.5L11.5 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Search bar */}
       <div style={{ background:'#fff', padding:'12px 16px 10px', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
@@ -72,7 +99,7 @@ export default function ListeScreen(p) {
 
       {/* Main list content */}
       {!p.searching && (
-        <div className="fg-scroll" onScroll={p.onListScroll} style={{ flex:1, overflowY:'auto' }}>
+        <div ref={p.scrollRef} className="fg-scroll" onScroll={p.onListScroll} style={{ flex:1, overflowY:'auto' }}>
           {/* Store picker */}
           <button onClick={p.openStorePicker} style={{ width:'calc(100% - 32px)', margin:'14px 16px 0', display:'flex', alignItems:'center', gap:11, border:'1px solid #ECECEC', background:'#fff', borderRadius:14, padding:'11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 1px 2px rgba(0,0,0,.03)' }}>
             <span style={{ width:36, height:36, flexShrink:0, borderRadius:11, background:'#EAF4FB', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>📍</span>
@@ -80,11 +107,11 @@ export default function ListeScreen(p) {
               <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A' }}>Magasin de cette liste</div>
               <div style={{ fontSize:15, fontWeight:800, lineHeight:1.2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeStoreLabel}</div>
             </div>
-            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#EAF4FB', color:'#2E86C9', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800 }}>Changer</span>
+            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', color:'#E8472A', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800 }}>Changer</span>
           </button>
 
           {/* Category pills */}
-          <div className="fg-scroll" style={{ position:'sticky', top:0, zIndex:12, display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F6F6F7', borderBottom:'1px solid #ECECEC' }}>
+          <div className="fg-scroll" style={{ position:'sticky', top:0, zIndex:12, display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F2F2F2', borderBottom:'1px solid #ECECEC' }}>
             {p.categories.map((c, i) => (
               <button key={i} onClick={c.onOpen} style={{ flexShrink:0, display:'flex', alignItems:'center', gap:7, padding:'8px 13px 8px 9px', border:'1px solid #ECECEC', borderRadius:13, background:'#fff', cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,.03)' }}>
                 <span style={c.tileStyle}>{c.emoji}</span>
@@ -96,7 +123,7 @@ export default function ListeScreen(p) {
           {/* Empty state */}
           {p.listEmpty && (
             <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', padding:'32px 16px' }}>
-              <img src="/uploads/penguin-clean.png" alt="Frigoo" style={{ width:'100%', maxWidth:340, height:'auto', display:'block' }} />
+              <img src="/uploads/penguin-writing.png" alt="Frigoo" style={{ width:'100%', maxWidth:154, height:'auto', display:'block' }} />
               <div style={{ fontSize:13, fontWeight:800, marginTop:8, color:'rgba(21,17,15,0.5)' }}>Meilleur moment de ma journée :<div>réfléchir à quoi manger !!</div></div>
             </div>
           )}
@@ -128,13 +155,13 @@ export default function ListeScreen(p) {
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:15, fontWeight:700, lineHeight:1.2 }}>{it.name}</div>
                           {it.hasPrice && (
-                            <div style={{ marginTop:4 }}><span style={it.priceBadgeStyle}>{it.priceLabel}</span></div>
+                            <div style={{ marginTop:4 }}><span style={it.priceBadgeStyle} title={it.priceTierTitle}>{it.priceLabel}</span></div>
                           )}
                         </div>
-                        <div style={{ display:'flex', alignItems:'center', background:'#F4F4F5', borderRadius:9, padding:2 }}>
-                          <button onClick={it.onDec} style={{ width:26, height:26, border:'none', background:'transparent', cursor:'pointer', fontSize:18, fontWeight:700, color:'#6B6B6B', lineHeight:1 }}>−</button>
+                        <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                          <button onClick={it.onDec} style={{ width:30, height:30, border:'none', borderRadius:9, background:'#EBEBEB', cursor:'pointer', fontSize:18, fontWeight:700, color:'#6B6B6B', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>−</button>
                           <span style={{ minWidth:16, textAlign:'center', fontSize:14, fontWeight:800 }}>{it.qty}</span>
-                          <button onClick={it.onInc} style={{ width:26, height:26, border:'none', background:'#fff', borderRadius:7, cursor:'pointer', fontSize:17, fontWeight:700, color:'#E8472A', lineHeight:1, boxShadow:'0 1px 2px rgba(0,0,0,.06)' }}>+</button>
+                          <button onClick={it.onInc} style={{ width:30, height:30, border:'none', borderRadius:9, background:'#E8472A', cursor:'pointer', fontSize:17, fontWeight:700, color:'#fff', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>+</button>
                         </div>
                       </div>
                     </div>

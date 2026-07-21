@@ -1,13 +1,32 @@
+import { useTabHeaderCollapse } from '../hooks/useTabHeaderCollapse'
+
 export default function DepensesScreen(p) {
   const remaining = p.budget - p.spent
   const remainColor = remaining < 0 ? '#FFE3B0' : '#fff'
+  const { headerRef, onScroll } = useTabHeaderCollapse()
 
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F6F6F7' }}>
-      <div style={{ background:'#fff', padding:'16px 16px 14px', paddingTop:'max(54px, calc(env(safe-area-inset-top) + 14px))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
-        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px', marginTop:1 }}>Dépenses </div>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2' }}>
+      <div ref={headerRef} className="tab-header" style={{ flexShrink:0 }}>
+        <div style={{ padding:'0 16px 14px', paddingTop:'max(16px, env(safe-area-inset-top))', display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Dépenses</div>
+          <div style={{ position:'relative', width:0, height:0 }}>
+            <img src="/uploads/penguin-abaque.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
+          </div>
+        </div>
       </div>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
+      <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
+
+        {/* Month selector */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'#fff', border:'1px solid #F0F0F0', borderRadius:16, padding:'10px 14px', marginBottom:12 }}>
+          <button onClick={p.prevMonth} style={{ width:34, height:34, border:'none', borderRadius:10, background:'#F4F4F5', color:'#15110F', fontSize:18, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>‹</button>
+          <div style={{ textAlign:'center' }}>
+            <div style={{ fontSize:16, fontWeight:800, letterSpacing:'-.3px', textTransform:'capitalize' }}>{p.expMonthLabel}</div>
+            {p.isCurrentMonth && <div style={{ fontSize:10, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, marginTop:1 }}>Ce mois-ci</div>}
+          </div>
+          <button onClick={p.nextMonth} style={{ width:34, height:34, border:'none', borderRadius:10, background: p.isCurrentMonth ? '#F0F0F0' : '#F4F4F5', color: p.isCurrentMonth ? '#BDBDBD' : '#15110F', fontSize:18, fontWeight:700, cursor: p.isCurrentMonth ? 'default' : 'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>›</button>
+        </div>
+
         {/* Budget card */}
         <div style={{ borderRadius:24, padding:22, color:'#fff', boxShadow:'0 8px 22px rgba(240,130,79,.28)', background:'#e8472a' }}>
           <div style={{ fontSize:13, fontWeight:700, opacity:.85 }}>Il te reste ce mois-ci</div>
@@ -32,27 +51,34 @@ export default function DepensesScreen(p) {
           </div>
         </div>
 
-        {/* Current cart */}
-        <div style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF7F5', border:'1px solid #FBE0D8', borderRadius:18, padding:'14px 16px', marginTop:12 }}>
-          <span style={{ width:40, height:40, borderRadius:11, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:21 }}>🛒</span>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:14, fontWeight:800 }}>Panier en cours</div>
-            <div style={{ fontSize:12, fontWeight:600, color:'#A07A6E' }}>{p.cartCount} articles dans « {p.activeListName} »</div>
+        {/* Current cart (only on current month) */}
+        {p.isCurrentMonth && (
+          <div style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF7F5', border:'1px solid #FBE0D8', borderRadius:18, padding:'14px 16px', marginTop:12 }}>
+            <span style={{ width:40, height:40, borderRadius:11, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:21 }}>🛒</span>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:14, fontWeight:800 }}>Panier en cours</div>
+              <div style={{ fontSize:12, fontWeight:600, color:'#A07A6E' }}>{p.cartCount} articles dans « {p.activeListName} »</div>
+            </div>
+            <span style={{ fontSize:19, fontWeight:800, color:'#E8472A' }}>≈ {p.listTotalLabel}</span>
           </div>
-          <span style={{ fontSize:19, fontWeight:800, color:'#E8472A' }}>≈ {p.listTotalLabel}</span>
-        </div>
+        )}
 
-        {/* Add expense */}
-        <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Dépenses du mois</div>
-        <div style={{ display:'flex', gap:8, background:'#fff', border:'1px solid #F0F0F0', borderRadius:16, padding:10, marginBottom:12 }}>
-          <input value={p.expReason} onChange={e=>p.setExpReason(e.target.value)} placeholder="Motif (ex : Courses Lidl)" style={{ flex:1, minWidth:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600 }} />
-          <input value={p.expAmount} onChange={e=>p.setExpAmount(e.target.value)} inputMode="decimal" placeholder="0,00" style={{ width:74, flexShrink:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 10px', fontFamily:'inherit', fontSize:14, fontWeight:800, textAlign:'right' }} />
-          <button onClick={p.addExpense} style={{ flexShrink:0, width:46, border:'none', background:'#E8472A', color:'#fff', borderRadius:11, fontSize:24, fontWeight:700, cursor:'pointer', lineHeight:1 }}>+</button>
-        </div>
+        {/* Add expense (only on current month) */}
+        {p.isCurrentMonth && (
+          <>
+            <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Ajouter une dépense</div>
+            <div style={{ display:'flex', gap:8, background:'#fff', border:'1px solid #F0F0F0', borderRadius:16, padding:10, marginBottom:12 }}>
+              <input value={p.expReason} onChange={e=>p.setExpReason(e.target.value)} placeholder="Motif (ex : Courses Lidl)" style={{ flex:1, minWidth:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600 }} />
+              <input value={p.expAmount} onChange={e=>p.setExpAmount(e.target.value)} inputMode="decimal" placeholder="0,00" style={{ width:74, flexShrink:0, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 10px', fontFamily:'inherit', fontSize:14, fontWeight:800, textAlign:'right' }} />
+              <button onClick={p.addExpense} style={{ flexShrink:0, width:46, border:'none', background:'#E8472A', color:'#fff', borderRadius:11, fontSize:24, fontWeight:700, cursor:'pointer', lineHeight:1 }}>+</button>
+            </div>
+          </>
+        )}
 
         {/* Expenses list */}
+        <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Dépenses</div>
         {p.expensesEmpty && (
-          <div style={{ textAlign:'center', padding:'24px 16px', color:'#A0A0A0', fontSize:14, fontWeight:600, lineHeight:1.5 }}>Aucune dépense ce mois-ci.<br/>Ajoute-en une ci-dessus 👆</div>
+          <div style={{ textAlign:'center', padding:'24px 16px', color:'#A0A0A0', fontSize:14, fontWeight:600, lineHeight:1.5 }}>Aucune dépense{p.isCurrentMonth ? ' ce mois-ci' : ' ce mois'}.<br/>{p.isCurrentMonth && 'Ajoute-en une ci-dessus 👆'}</div>
         )}
         {p.expensesNotEmpty && (
           <div style={{ background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, overflow:'hidden' }}>
