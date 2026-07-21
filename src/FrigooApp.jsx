@@ -1,15 +1,14 @@
 import { useState, useRef, useCallback } from 'react'
 import {
-  doc, getDocs, addDoc, updateDoc,
-  collection, query, where,
-  writeBatch, serverTimestamp,
+  doc, addDoc, updateDoc,
+  serverTimestamp,
 } from 'firebase/firestore'
 import { db, storage } from './firebase'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { CATS, CATALOG, STORES } from './data'
 import { fmt, tileStyle } from './lib/format'
-import { catById, catalogCat, emojiOf, priceOf } from './lib/catalog'
-import { accColor } from './lib/colors'
+import { catById, catalogCat, emojiOf, priceOf, unitLabel } from './lib/catalog'
+import { reliabilityColor } from './lib/colors'
 import { useSwipeGesture } from './hooks/useSwipeGesture'
 import { recipesRef } from './firestore/paths'
 import { useFrigooData } from './hooks/useFrigooData'
@@ -17,6 +16,9 @@ import { useListItems } from './hooks/useListItems'
 import { useRecipeActions } from './hooks/useRecipeActions'
 import { useListManagement } from './hooks/useListManagement'
 import { useExpenses } from './hooks/useExpenses'
+import { useMarketPrices } from './hooks/useMarketPrices'
+import { useBrandCollapse } from './hooks/useBrandCollapse'
+import { useTabPager } from './hooks/useTabPager'
 import ListeScreen from './screens/ListeScreen'
 import CuisineScreen from './screens/CuisineScreen'
 import DepensesScreen from './screens/DepensesScreen'
@@ -53,8 +55,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const [search, setSearch]     = useState('')
 
   const toastRef  = useRef(null)
-  const brandRef  = useRef(null)
-  const scrollRaf = useRef(null)
 
   // ── Toast ──────────────────────────────────────────────────────────────────
   const flash = useCallback((msg) => {
@@ -83,6 +83,9 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const inFridge = mine.filter(a => a.place === 'frigo')
   const factor   = storeFactor()
 
+  // ── Prix réels Open Food Facts (médiane par enseigne/ville, si mappé) ──────
+  const { marketPrices } = useMarketPrices({ items:inList, storeName:active.store, city:active.city })
+
   // ── Article actions ────────────────────────────────────────────────────────
   const { addToList, setQty, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear } = useListItems({
     activeListId, articles, flash, onListCleared:()=>setOverlay(null),
@@ -106,33 +109,42 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const { startSwipe, moveTouchSwipe, endTouchSwipe } = useSwipeGesture({ remove, gotIt, flash })
 
   // ── Brand scroll ───────────────────────────────────────────────────────────
-  const onListScroll = (e) => {
-    const t = e.target.scrollTop
-    if (scrollRaf.current) cancelAnimationFrame(scrollRaf.current)
-    scrollRaf.current = requestAnimationFrame(() => {
-      const el = brandRef.current; if (!el) return
-      el.classList.toggle('brand-collapsed', t > 60)
-    })
-  }
+  const { brandRef, scrollRef, onListScroll } = useBrandCollapse([inList.length, activeListId])
+
+  // ── Pager d'onglets (swipe horizontal) ──────────────────────────────────────
+  const { pagerRef, onPagerScroll, goToTab } = useTabPager(tab, setTab)
 
   // ── Item decoration ────────────────────────────────────────────────────────
-  const decoItem = (a) => ({
-    id:a.id, name:a.name, emoji:emojiOf(a.name), qty:a.qty, checked:!!a.checked,
-    tileStyle:tileStyle(34, 19, catById(a.cat).color),
-    hasPrice:showPricesLocal,
-    priceLabel:showPricesLocal ? (fmt(a.price*factor)+(a.qty>1?' / u':'')) : '',
-    priceBadgeStyle:{ display:'inline-block', padding:'2px 8px', borderRadius:8, fontSize:11.5, fontWeight:800, lineHeight:1.35, background:accColor(a.id).bg, color:accColor(a.id).fg },
-    qtyLabel:a.qty>1?('×'+a.qty):'',
-    nameStyle:{ flex:1, fontSize:15, fontWeight:700, textDecoration:a.checked?'line-through':'none', color:a.checked?'#B7B7B7':'#15110F' },
-    checkStyle:{ width:27, height:27, flexShrink:0, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:a.checked?'#E8472A':'#fff', border:a.checked?'2px solid #E8472A':'2px solid #DBDBDB' },
-    onInc:()=>setQty(a.id, a.listId, 1),
-    onDec:()=>setQty(a.id, a.listId, -1),
-    onToggle:()=>toggleCheck(a.id, a.listId),
-    onRebuy:()=>rebuy(a.id, a.listId),
-    onSwipeStart:(e)=>startSwipe(a.id, a.listId, e),
-    onTouchMove:moveTouchSwipe,
-    onTouchEnd:endTouchSwipe,
-  })
+  const unitPrice = (a, market) => market && market.price != null ? market.price : a.price*factor
+
+  const decoItem = (a) => {
+    const market = marketPrices[a.name]
+    // grey = pas de prix live (aucun tag OFF, ou recherche pas encore lancée) ; red = tag OFF mais
+    // 0 relevé pour cette enseigne/ville ; yellow (1-3 relevés) / green (> 3) = prix live.
+    const priceTier = market ? market.reliability : 'grey'
+    const priceTierTitle = market
+      ? (market.count > 0 ? market.count+' relevé(s) trouvé(s)' : 'Aucun relevé pour cette enseigne/ville, prix estimé')
+      : 'Prix estimé, pas de donnée Open Food Facts pour ce produit'
+    return {
+      id:a.id, name:a.name, emoji:emojiOf(a.name), qty:a.qty, checked:!!a.checked,
+      tileStyle:tileStyle(34, 19, catById(a.cat).color),
+      hasPrice:showPricesLocal,
+      priceLabel:showPricesLocal ? (fmt(unitPrice(a, market))+' '+unitLabel(a.name)) : '',
+      priceBadgeStyle:{ display:'inline-block', padding:'2px 8px', borderRadius:8, fontSize:11.5, fontWeight:800, lineHeight:1.35, background:reliabilityColor(priceTier).bg, color:reliabilityColor(priceTier).fg },
+      priceTierTitle,
+      qtyLabel:a.qty>1?('×'+a.qty):'',
+      nameStyle:{ flex:1, fontSize:15, fontWeight:700, textDecoration:a.checked?'line-through':'none', color:a.checked?'#B7B7B7':'#15110F' },
+      checkStyle:{ width:27, height:27, flexShrink:0, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:a.checked?'#E8472A':'#fff', border:a.checked?'2px solid #E8472A':'2px solid #DBDBDB' },
+      onInc:()=>setQty(a.id, a.listId, 1),
+      onDec:()=>setQty(a.id, a.listId, -1),
+      onToggle:()=>toggleCheck(a.id, a.listId),
+      onRebuy:()=>rebuy(a.id, a.listId),
+      onRemove:()=>remove(a.id, a.listId),
+      onSwipeStart:(e)=>startSwipe(a.id, a.listId, e),
+      onTouchMove:moveTouchSwipe,
+      onTouchEnd:endTouchSwipe,
+    }
+  }
 
   const groupBy = (arr) => {
     const m = {}
@@ -158,7 +170,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   const categories = CATS.map(c => ({ emoji:c.emoji, shortName:c.short, tileStyle:tileStyle(26,15,c.color), onOpen:()=>{ setSheetCat(c.id); setSheetText(''); setOverlay('addSheet') } }))
   const picked = inList.filter(a => a.checked).length
-  const listTotal = inList.reduce((t, a) => t+a.price*a.qty, 0) * factor
+  const listTotal = inList.reduce((t, a) => t+unitPrice(a, marketPrices[a.name])*a.qty, 0)
 
   // ── Recipes ────────────────────────────────────────────────────────────────
   const recipesList = recipes.map(r => ({
@@ -235,25 +247,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     } catch(e) { flash('Erreur : '+e.code); console.error(e) }
   }
 
-  const resetDevData = async () => {
-    if (!import.meta.env.DEV || !uid) return
-    try {
-      const b = writeBatch(db)
-      const listsSnap = await getDocs(query(collection(db, 'lists'), where('members', 'array-contains', uid)))
-      for (const l of listsSnap.docs) {
-        const itemsSnap = await getDocs(collection(db, 'lists', l.id, 'items'))
-        itemsSnap.docs.forEach(d => b.delete(d.ref))
-        b.delete(l.ref)
-      }
-      const recipesSnap = await getDocs(collection(db, 'users', uid, 'recipes'))
-      recipesSnap.docs.forEach(d => b.delete(d.ref))
-      const expensesSnap = await getDocs(collection(db, 'users', uid, 'expenses'))
-      expensesSnap.docs.forEach(d => b.delete(d.ref))
-      await b.commit()
-      window.location.reload()
-    } catch(e) { flash('Erreur reset : '+e.code); console.error(e) }
-  }
-
   // ── Store picker ───────────────────────────────────────────────────────────
   const activeStoreCity = storeCity !== undefined ? storeCity : (active.city || '')
   const storeOptions = STORES.map(st => ({
@@ -325,7 +318,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     createNamedList,
     addInviteToList, removeInviteFromList,
     openListsMgr:()=>{ setOverlay('listsMgr'); setMgrName(''); setMgrCity(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('') },
-    brandRef, onListScroll,
+    brandRef, scrollRef, onListScroll,
     showPrices:showPricesLocal, pricesToggleOn:showPricesLocal, togglePrices,
     comingSoon:()=>flash('Bientôt disponible 🐧'),
     userName, userPhoto, saveDisplayName, uploadPhoto,
@@ -333,17 +326,16 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     openEditList:(id)=>{ setEditListId(id); setOverlay('editList') },
     updateList, uploadListPhoto,
     isFab:false,
-    goListe:()=>{ setTab('liste'); setOverlay(null) },
-    goCuisine:()=>{ setTab('cuisine'); setOverlay(null) },
-    goDepenses:()=>{ setTab('depenses'); setOverlay(null) },
-    goParams:()=>{ setTab('params'); setOverlay(null) },
+    goListe:()=>{ goToTab('liste'); setOverlay(null) },
+    goCuisine:()=>{ goToTab('cuisine'); setOverlay(null) },
+    goDepenses:()=>{ goToTab('depenses'); setOverlay(null) },
+    goParams:()=>{ goToTab('params'); setOverlay(null) },
     openPanier:()=>setOverlay('panier'),
     openFridge:()=>setOverlay('frigo'),
     listDropOpen, toggleListDrop:()=>setListDropOpen(v=>!v), closeListDrop:()=>setListDropOpen(false),
     openStorePicker:()=>{ setOverlay('storePicker'); setStoreCity(active.city||'') },
     openAddDefault:()=>{ setSheetCat('fl'); setSheetText(''); setOverlay('addSheet') },
     openNewRecipe:()=>{ setOverlay('newRecipe'); setNrName(''); setNrIng([]); setNrText(''); setNrEmoji('🍽️') },
-    resetDevData, isDev:import.meta.env.DEV,
     closeOverlay:()=>setOverlay(null),
     askClear:()=>setOverlay('clear'),
     confirmClear:()=>doClear(),
@@ -355,10 +347,12 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   return (
     <div style={{ width:'100%', maxWidth:430, margin:'0 auto', height:'100svh', display:'flex', flexDirection:'column', overflow:'hidden', background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif", WebkitFontSmoothing:'antialiased', color:'#15110F', position:'relative' }}>
       <div style={{ flex:1, minHeight:0, position:'relative', overflow:'hidden' }}>
-        {tab==='liste'    && <ListeScreen     {...p} />}
-        {tab==='cuisine'  && <CuisineScreen   {...p} />}
-        {tab==='depenses' && <DepensesScreen  {...p} />}
-        {tab==='params'   && <ParametresScreen {...p} />}
+        <div ref={pagerRef} onScroll={onPagerScroll} className="fg-pager" style={{ display:'flex', width:'100%', height:'100%', overflowX:'auto', overflowY:'hidden' }}>
+          <div style={{ flex:'0 0 100%', width:'100%', height:'100%', overflow:'hidden' }}><ListeScreen {...p} /></div>
+          <div style={{ flex:'0 0 100%', width:'100%', height:'100%', overflow:'hidden' }}><CuisineScreen {...p} /></div>
+          <div style={{ flex:'0 0 100%', width:'100%', height:'100%', overflow:'hidden' }}><DepensesScreen {...p} /></div>
+          <div style={{ flex:'0 0 100%', width:'100%', height:'100%', overflow:'hidden' }}><ParametresScreen {...p} /></div>
+        </div>
 
         {overlay==='panier'      && <PanierOverlay        {...p} />}
         {overlay==='frigo'       && <FrigoOverlay         {...p} />}

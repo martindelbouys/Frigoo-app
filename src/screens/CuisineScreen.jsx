@@ -1,14 +1,24 @@
+import { useTabHeaderCollapse } from '../hooks/useTabHeaderCollapse'
+
 export default function CuisineScreen(p) {
+  const { headerRef, onScroll } = useTabHeaderCollapse()
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F6F6F7', position:'relative' }}>
-      <div style={{ background:'#fff', padding:'16px 16px 14px', paddingTop:'max(54px, calc(env(safe-area-inset-top) + 14px))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
-        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px', marginTop:1 }}>Recettes </div>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative' }}>
+      <div ref={headerRef} className="tab-header" style={{ flexShrink:0 }}>
+        <div style={{ padding:'0 16px 14px', paddingTop:'max(16px, env(safe-area-inset-top))', display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
+          <div style={{ position:'relative', width:0, height:0 }}>
+            <img src="/uploads/penguin-chef.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
+          </div>
+        </div>
       </div>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
+      <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
         {p.recipes.map((r, i) => (
           <div key={i} style={{ flexShrink:0, background:'#fff', border:'1px solid #F0F0F0', borderRadius:20, overflow:'hidden', boxShadow:'0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.03)' }}>
             <button onClick={r.onOpen} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'10px 12px', border:'none', background:'#fff', cursor:'pointer', textAlign:'left' }}>
-              <span style={{ width:44, height:44, flexShrink:0, borderRadius:13, background:'#FCF1E6', display:'flex', alignItems:'center', justifyContent:'center', fontSize:23 }}>{r.emoji}</span>
+              <span style={{ width:44, height:44, flexShrink:0, borderRadius:13, background:'#FCF1E6', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', fontSize:23 }}>
+                {r.photoURL ? <img src={r.photoURL} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : r.emoji}
+              </span>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:15, fontWeight:800, letterSpacing:'-.3px' }}>{r.name}</div>
                 <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A', marginTop:1 }}>{r.ingLabel}</div>
@@ -22,7 +32,7 @@ export default function CuisineScreen(p) {
           </div>
         ))}
       </div>
-      <div style={{ position:'absolute', left:0, right:0, bottom:0, height:56, background:'linear-gradient(to bottom, rgba(246,246,247,0), #F6F6F7)', pointerEvents:'none' }}/>
+      <div style={{ position:'absolute', left:0, right:0, bottom:0, height:56, background:'linear-gradient(to bottom, rgba(242,242,242,0), #F2F2F2)', pointerEvents:'none' }}/>
       <button onClick={p.openNewRecipe} style={{ position:'absolute', right:16, bottom:20, zIndex:5, display:'flex', alignItems:'center', gap:6, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:14, fontWeight:800, padding:'13px 18px', borderRadius:14, cursor:'pointer', boxShadow:'0 6px 18px rgba(232,71,42,.34)' }}>
         <span style={{ fontSize:18, lineHeight:1 }}>+</span> Nouvelle
       </button>

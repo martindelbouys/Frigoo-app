@@ -61,7 +61,12 @@ export function useSwipeGesture({ remove, gotIt, flash }) {
       }
       return
     }
-    if (sw.dir === 'h') { sw.el.style.transform=`translateX(${Math.max(-130, Math.min(130, dx))}px)`; showBg(sw.el, dx) }
+    if (sw.dir === 'h') {
+      // Empêche un swipe horizontal sur l'article de remonter jusqu'au pager
+      // d'onglets (scroll-snap) et d'être interprété comme un changement d'onglet.
+      e.stopPropagation()
+      sw.el.style.transform=`translateX(${Math.max(-130, Math.min(130, dx))}px)`; showBg(sw.el, dx)
+    }
   }, [])
 
   const endTouchSwipe = useCallback((e) => {

@@ -3,7 +3,7 @@
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   color: #15110F;
-  background: #F6F6F7;
+  background: #F2F2F2;
   -webkit-font-smoothing: antialiased;
   /* Empêche le bounce/overscroll de la page entière sur iOS */
   overscroll-behavior: none;
@@ -26,11 +26,24 @@ body {
 }
 .fg-scroll::-webkit-scrollbar { display: none; }
 
+/* Pager horizontal entre onglets (swipe = scroll-snap natif) */
+.fg-pager {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+.fg-pager::-webkit-scrollbar { display: none; }
+.fg-pager > * {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 /* Supprime le highlight bleu/gris au tap sur iOS */
 * { -webkit-tap-highlight-color: transparent; }
 
-/* Empêche la sélection de texte pendant les swipes */
-button { -webkit-user-select: none; user-select: none; }
+/* Empêche la sélection de texte pendant les swipes + hérite la couleur du parent */
+button { -webkit-user-select: none; user-select: none; color: inherit; }
 
 /* Fix zoom iOS sur les inputs : font-size >= 16px */
 input, select, textarea {
@@ -48,14 +61,15 @@ input, select, textarea {
 /* Barre de navigation — 4 colonnes strictement égales */
 .fg-nav {
   flex-shrink: 0;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: #fff;
   border-top: 1px solid #EFEFEF;
-  padding-top: 8px;
+  padding-top: 6px;
   padding-left: 0;
   padding-right: 0;
-  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
 }
 
 .fg-nav button {
@@ -66,18 +80,54 @@ input, select, textarea {
   gap: 3px;
   border: none;
   background: transparent;
-  padding: 4px 2px;
+  padding: 4px 4px;
   cursor: pointer;
   overflow: hidden;
   min-width: 0;
   font-family: inherit;
+  width: 100%;
 }
 
 .fg-nav button span.label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   white-space: nowrap;
   letter-spacing: -0.2px;
+  max-width: 100%;
+}
+
+/* Brand header scroll collapse — géré par le compositor (pas de reflow) */
+.brand-header {
+  overflow: hidden;
+  max-height: var(--brand-h, 400px);
+  will-change: max-height, opacity;
+  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.32s ease;
+}
+.brand-header.brand-collapsed {
+  max-height: 0;
+}
+.brand-header-inner {
+  transition: opacity 0.2s ease;
+}
+.brand-header.brand-collapsed .brand-header-inner {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tab header scroll collapse (Recettes/Dépenses/Réglages) — overflow visible à l'état
+   ouvert pour laisser la mascotte déborder du bandeau sans agrandir sa hauteur. */
+.tab-header {
+  overflow: visible;
+  max-height: var(--tab-h, 400px);
+  will-change: max-height, opacity;
+  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
+}
+.tab-header.tab-collapsed {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes fgToast {
