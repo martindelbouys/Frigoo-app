@@ -6,19 +6,25 @@ service firebase.storage {
       return isSignedIn() &&
         request.auth.uid in firestore.get(/databases/(default)/documents/lists/$(listId)).data.members;
     }
+    function isValidImage() {
+      return request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
 
     match /users/{uid}/avatar {
       // Visible par les autres membres d'une liste, modifiable par son propriétaire.
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && request.auth.uid == uid;
+      allow write: if isSignedIn() && request.auth.uid == uid && isValidImage();
     }
 
     match /users/{uid}/recipes/{recipeId}/photo {
-      allow read, write: if isSignedIn() && request.auth.uid == uid;
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if isSignedIn() && request.auth.uid == uid && isValidImage();
     }
 
     match /lists/{listId}/cover {
-      allow read, write: if isListMember(listId);
+      allow read: if isListMember(listId);
+      allow write: if isListMember(listId) && isValidImage();
     }
   }
 }
