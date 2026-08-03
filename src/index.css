@@ -19,10 +19,13 @@ body {
 }
 
 #root {
-  /* dvh (et non svh) : sur iOS en mode standalone, 100svh peut se calculer
-     plus court que l'écran réel et laisser une bande grise au-dessus de la
-     home indicator. dvh colle à la hauteur visible réelle. */
-  height: 100dvh;
+  /* position: fixed + inset: 0 (plutôt que height: 100svh/100dvh) : ancre
+     directement le root aux 4 bords du viewport visuel. Les unités svh/dvh se
+     sont révélées incohérentes selon les versions d'iOS en mode standalone
+     (tantôt trop courtes, tantôt trop longues) — inset:0 n'a pas cette
+     ambiguïté, il colle toujours exactement à l'écran réel. */
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;

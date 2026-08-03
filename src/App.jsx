@@ -8,7 +8,7 @@ provider.setCustomParameters({ prompt: 'select_account' })
 
 function LoginScreen({ onSignIn, loading, error }) {
   return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100dvh', gap:28, padding:32, background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}>
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:28, padding:32, background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}>
       <div>
         <div style={{ fontFamily:"'Fredoka', sans-serif", fontSize:72, fontWeight:600, color:'#E8472A', letterSpacing:-2, lineHeight:1, textAlign:'center' }}>frigoo</div>
         <div style={{ fontSize:14, fontWeight:700, color:'#9A9A9A', textAlign:'center', marginTop:6 }}>La liste de courses pensée pour les budgets serrés 🐧</div>
