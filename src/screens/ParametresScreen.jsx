@@ -12,9 +12,9 @@ export default function ParametresScreen(p) {
   const commitName = () => { if (nameVal.trim()) p.saveDisplayName(nameVal.trim()); setEditingName(false) }
 
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2' }}>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', paddingTop:'env(safe-area-inset-top)' }}>
       <div ref={headerRef} className="tab-header" style={{ flexShrink:0 }}>
-        <div style={{ padding:'0 16px 14px', paddingTop:'max(16px, env(safe-area-inset-top))', display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
           <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Paramètres</div>
           <div style={{ position:'relative', width:0, height:0 }}>
             <img src="/uploads/penguin-mecano.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />

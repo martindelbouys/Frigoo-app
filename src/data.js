@@ -263,11 +263,8 @@ export const INITIAL_ARTICLES = [
 ]
 
 export const INITIAL_RECIPES = [
-  { id:'r1', emoji:'🍝', name:'Pâtes carbo',          ing:[{name:'Pâtes',cat:'fec'},{name:'Lardons',cat:'vp'},{name:'Crème fraîche',cat:'lait'},{name:'Œufs',cat:'lait'},{name:'Parmesan',cat:'lait'}] },
-  { id:'r2', emoji:'🍛', name:'Curry de pois chiches', ing:[{name:'Pois chiches',cat:'fec'},{name:'Lait de coco',cat:'bois'},{name:'Curry',cat:'foyer'},{name:'Riz',cat:'fec'},{name:'Oignons',cat:'fl'}] },
-  { id:'r3', emoji:'🍳', name:'Omelette express',      ing:[{name:'Œufs',cat:'lait'},{name:'Beurre',cat:'mg'},{name:'Fromage râpé',cat:'lait'}] },
-  { id:'r4', emoji:'🥗', name:'Salade composée',       ing:[{name:'Salade',cat:'fl'},{name:'Tomates',cat:'fl'},{name:'Thon en boîte',cat:'vp'},{name:'Maïs',cat:'fl'},{name:'Œufs',cat:'lait'}] },
-  { id:'r5', emoji:'🌮', name:'Tacos maison',          ing:[{name:'Tortillas',cat:'fec'},{name:'Poulet',cat:'vp'},{name:'Fromage râpé',cat:'lait'},{name:'Sauce tomate',cat:'foyer'},{name:'Oignons',cat:'fl'}] },
+  { id:'r1', emoji:'🍝', name:'Pâtes carbo',     ing:[{name:'Pâtes',cat:'fec'},{name:'Lardons',cat:'vp'},{name:'Crème fraîche',cat:'lait'},{name:'Œufs',cat:'lait'},{name:'Parmesan',cat:'lait'}] },
+  { id:'r3', emoji:'🍳', name:'Omelette express', ing:[{name:'Œufs',cat:'lait'},{name:'Beurre',cat:'mg'},{name:'Fromage râpé',cat:'lait'}] },
 ]
 
 export const INITIAL_LISTS = [

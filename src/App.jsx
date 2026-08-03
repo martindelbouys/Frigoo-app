@@ -8,7 +8,7 @@ provider.setCustomParameters({ prompt: 'select_account' })
 
 function LoginScreen({ onSignIn, loading, error }) {
   return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100svh', gap:28, padding:32, background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}>
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100dvh', gap:28, padding:32, background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif" }}>
       <div>
         <div style={{ fontFamily:"'Fredoka', sans-serif", fontSize:72, fontWeight:600, color:'#E8472A', letterSpacing:-2, lineHeight:1, textAlign:'center' }}>frigoo</div>
         <div style={{ fontSize:14, fontWeight:700, color:'#9A9A9A', textAlign:'center', marginTop:6 }}>La liste de courses pensée pour les budgets serrés 🐧</div>
@@ -28,6 +28,10 @@ function LoginScreen({ onSignIn, loading, error }) {
 }
 
 const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent)
+// PWA installée sur l'écran d'accueil : signInWithRedirect n'y fonctionne pas de façon fiable
+// (la navigation vers Google ne se produit jamais, sans erreur). signInWithPopup fonctionne bien
+// à la place, y compris en mode standalone.
+const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true
 
 export default function App() {
   const [user, setUser]       = useState(undefined)
@@ -46,7 +50,7 @@ export default function App() {
       setError('La fenêtre de connexion ne s\'ouvre pas. Ton navigateur bloque peut-être les popups (Safari en navigation privée, bloqueur de pub…) : autorise les popups pour ce site et réessaie.')
     }, 8000)
     try {
-      if (isMobile) {
+      if (isMobile && !isStandalone) {
         await signInWithRedirect(auth, provider)
       } else {
         await signInWithPopup(auth, provider)

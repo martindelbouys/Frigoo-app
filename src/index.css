@@ -1,9 +1,16 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
   color: #15110F;
-  background: #F2F2F2;
+  /* Blanc (et non gris) : si 100dvh laisse échapper un pixel de marge sur un
+     coin d'écran iOS, il se fond dans les surfaces blanches (nav, headers)
+     au lieu de laisser apparaître une bande grise visible. */
+  background: #fff;
   -webkit-font-smoothing: antialiased;
   /* Empêche le bounce/overscroll de la page entière sur iOS */
   overscroll-behavior: none;
@@ -12,7 +19,10 @@ body {
 }
 
 #root {
-  height: 100svh;
+  /* dvh (et non svh) : sur iOS en mode standalone, 100svh peut se calculer
+     plus court que l'écran réel et laisser une bande grise au-dessus de la
+     home indicator. dvh colle à la hauteur visible réelle. */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -23,6 +33,7 @@ body {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  transform: translateZ(0);
 }
 .fg-scroll::-webkit-scrollbar { display: none; }
 
@@ -32,6 +43,7 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  transform: translateZ(0);
 }
 .fg-pager::-webkit-scrollbar { display: none; }
 .fg-pager > * {
@@ -101,6 +113,9 @@ input, select, textarea {
   overflow: hidden;
   max-height: var(--brand-h, 400px);
   will-change: max-height, opacity;
+  /* Isole la mise en page interne du header pour que son animation de repli
+     ne déclenche pas un recalcul de layout sur toute la page à chaque frame. */
+  contain: layout style;
   transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
               background-color 0.32s ease;
 }
@@ -121,6 +136,9 @@ input, select, textarea {
   overflow: visible;
   max-height: var(--tab-h, 400px);
   will-change: max-height, opacity;
+  /* layout+style seulement (pas paint) : on isole le recalcul de mise en page
+     sans forcer de clipping, pour laisser la mascotte déborder du bandeau. */
+  contain: layout style;
   transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
 }
 .tab-header.tab-collapsed {

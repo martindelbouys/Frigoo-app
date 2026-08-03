@@ -21,11 +21,12 @@ export function useFrigooData(uid, userEmail, flash) {
   const [expenses, setExpenses]               = useState([])
 
   const listIdsRef = useRef([]) // track active list subscriptions
+  const prevMembersRef = useRef(new Map()) // track member lists to detect who just joined
 
   // ── Bootstrap: ensure user doc + default list ──────────────────────────────
   useEffect(() => {
     let cancelled = false
-    bootstrapUser(uid, userEmail)
+    bootstrapUser(uid, userEmail, flash)
       .catch(e => console.error('boot error:', e))
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
@@ -55,7 +56,20 @@ export function useFrigooData(uid, userEmail, flash) {
     // Lists
     const listsQ = query(collection(db, 'lists'), where('members', 'array-contains', uid))
     unsubs.push(onSnapshot(listsQ, snap => {
-      setLists(snap.docs.map(d => ({ id:d.id, ...d.data() })))
+      const nextLists = snap.docs.map(d => ({ id:d.id, ...d.data() }))
+      // Repère les nouveaux membres depuis le dernier snapshot pour rendre les
+      // invitations acceptées visibles en direct (pas seulement le compteur).
+      nextLists.forEach(l => {
+        const members = l.members || []
+        const prevMembers = prevMembersRef.current.get(l.id)
+        if (prevMembers) {
+          members.filter(m => !prevMembers.includes(m)).forEach(m => {
+            if (m !== uid) flash('🎉 Quelqu\'un a rejoint « '+(l.name||'')+' »')
+          })
+        }
+        prevMembersRef.current.set(l.id, members)
+      })
+      setLists(nextLists)
     }, onError('listes')))
 
     // Recipes (sans orderBy pour éviter l'index Firestore manquant)

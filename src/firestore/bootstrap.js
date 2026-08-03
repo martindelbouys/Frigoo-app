@@ -9,7 +9,7 @@ import { userRef, recipesRef, expensesRef, itemsRef } from './paths'
 // Assure l'existence du doc utilisateur + d'au moins une liste, nettoie les
 // doublons, rejoint les listes en attente d'invitation, et amorce les recettes
 // par défaut. Appelé une fois au démarrage, avant d'ouvrir les listeners temps réel.
-export async function bootstrapUser(uid, userEmail) {
+export async function bootstrapUser(uid, userEmail, flash) {
   const uSnap = await getDoc(userRef(uid))
   let data = uSnap.exists() ? uSnap.data() : null
 
@@ -120,21 +120,17 @@ export async function bootstrapUser(uid, userEmail) {
             members: arrayUnion(uid),
             pendingInvites: arrayRemove(userEmail),
           })
+          if (flash) flash('Tu as rejoint « '+(ld.name||'')+' » ✓')
         }
       }
     } catch(e) { console.warn('auto-join:', e.code) }
   }
 
-  // Seed default recipes if none
+  // Seed default recipes if none (2 exemples seulement pour ne pas noyer l'onglet)
   const { docs: rDocs } = await getDocs(collection(db, 'users', uid, 'recipes'))
   if (rDocs.length === 0) {
-    const devExtra = import.meta.env.DEV ? [
-      { emoji:'🥘', name:'Soupe de légumes',  ing:[{name:'Carottes',cat:'fl'},{name:'Pommes de terre',cat:'fl'},{name:'Bouillon',cat:'foyer'}] },
-      { emoji:'🍕', name:'Pizza maison',       ing:[{name:'Pâtes',cat:'fec'},{name:'Sauce tomate',cat:'foyer'},{name:'Mozzarella',cat:'lait'},{name:'Jambon',cat:'vp'}] },
-      { emoji:'🐟', name:'Saumon grillé',      ing:[{name:'Saumon',cat:'vp'},{name:'Citrons',cat:'fl'},{name:'Beurre',cat:'mg'}] },
-    ] : []
     const batch = writeBatch(db)
-    ;[...INITIAL_RECIPES, ...devExtra].forEach(r => batch.set(doc(recipesRef(uid)), { emoji:r.emoji, name:r.name, ing:r.ing, createdAt:serverTimestamp() }))
+    INITIAL_RECIPES.forEach(r => batch.set(doc(recipesRef(uid)), { emoji:r.emoji, name:r.name, ing:r.ing, createdAt:serverTimestamp() }))
     await batch.commit()
   }
 }

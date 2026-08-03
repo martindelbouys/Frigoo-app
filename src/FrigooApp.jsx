@@ -264,7 +264,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   // ── Loading screen ─────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100svh', background:'#F2F2F2', fontFamily:"'Fredoka',sans-serif", fontSize:48, fontWeight:600, color:'#E8472A' }}>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100dvh', background:'#F2F2F2', fontFamily:"'Fredoka',sans-serif", fontSize:48, fontWeight:600, color:'#E8472A' }}>
       frigoo
     </div>
   )
@@ -345,7 +345,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   }
 
   return (
-    <div style={{ width:'100%', maxWidth:430, margin:'0 auto', height:'100svh', display:'flex', flexDirection:'column', overflow:'hidden', background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif", WebkitFontSmoothing:'antialiased', color:'#15110F', position:'relative' }}>
+    <div style={{ width:'100%', maxWidth:430, margin:'0 auto', height:'100dvh', display:'flex', flexDirection:'column', overflow:'hidden', background:'#F2F2F2', fontFamily:"'Plus Jakarta Sans', -apple-system, system-ui, sans-serif", WebkitFontSmoothing:'antialiased', color:'#15110F', position:'relative' }}>
       <div style={{ flex:1, minHeight:0, position:'relative', overflow:'hidden' }}>
         <div ref={pagerRef} onScroll={onPagerScroll} className="fg-pager" style={{ display:'flex', width:'100%', height:'100%', overflowX:'auto', overflowY:'hidden' }}>
           <div style={{ flex:'0 0 100%', width:'100%', height:'100%', overflow:'hidden' }}><ListeScreen {...p} /></div>

@@ -9,10 +9,10 @@ export default function ListeScreen(p) {
   }, [p.listDropOpen])
 
   return (
-    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative' }}>
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
       {/* Brand header */}
       <div ref={p.brandRef} className="brand-header" style={{ background:'#FFE7DF', flexShrink:0 }}>
-        <div className="brand-header-inner" style={{ position:'relative', paddingTop:'max(14px, env(safe-area-inset-top))', paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
+        <div className="brand-header-inner" style={{ position:'relative', paddingTop:14, paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, marginBottom:14 }}>
             <span>frig</span>
             <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
