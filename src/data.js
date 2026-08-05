@@ -226,20 +226,6 @@ export const EMOJI_MAP = {
   'Sauce tomate':'🍅',
 }
 
-export const STORES = [
-  { name:'Lidl',                 emoji:'🟡', factor:0.88, tag:'Discount' },
-  { name:'Aldi',                 emoji:'🔵', factor:0.86, tag:'Discount' },
-  { name:'Carrefour',            emoji:'🔴', factor:1.00, tag:'Hyper' },
-  { name:'Carrefour Market',     emoji:'🔴', factor:1.06, tag:'Super' },
-  { name:'Carrefour Proximité',  emoji:'🔴', factor:1.18, tag:'Proximité' },
-  { name:'Intermarché',          emoji:'🟠', factor:0.97, tag:'Super' },
-  { name:'Leclerc',              emoji:'🔵', factor:0.93, tag:'Hyper' },
-  { name:'Auchan',               emoji:'🟢', factor:0.98, tag:'Hyper' },
-  { name:'Auchan Supermarché',   emoji:'🟢', factor:1.03, tag:'Super' },
-  { name:'Monoprix',             emoji:'🟣', factor:1.24, tag:'Ville' },
-  { name:"Bio c'Bon",            emoji:'🟢', factor:1.42, tag:'Bio' },
-]
-
 export const INITIAL_ARTICLES = [
   { id:1,  name:'Pâtes',             cat:'fec',  price:0.95, qty:2, place:'liste', listId:'coloc' },
   { id:2,  name:'Bananes',           cat:'fl',   price:1.20, qty:1, place:'liste', listId:'coloc' },

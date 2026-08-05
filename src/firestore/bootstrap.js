@@ -16,8 +16,8 @@ export async function bootstrapUser(uid) {
 
   if (!data) {
     // New user → create user doc
-    await setDoc(userRef(uid), { budget:250, showPrices:true, activeListId:null, createdAt:serverTimestamp() })
-    data = { budget:250, showPrices:true, activeListId:null }
+    await setDoc(userRef(uid), { budget:250, activeListId:null, createdAt:serverTimestamp() })
+    data = { budget:250, activeListId:null }
   }
 
   // Check if user has any list
@@ -28,7 +28,7 @@ export async function bootstrapUser(uid) {
     if (import.meta.env.DEV) {
       // Dev: 3 listes avec articles, dépenses et recettes enrichies
       const devLists = [
-        { emoji:'🛒', name:'Ma liste', members:[uid], store:'Carrefour City', city:'Lyon 7ᵉ',
+        { emoji:'🛒', name:'Ma liste', members:[uid],
           items:[
             { name:'Tomates', cat:'fl', price:1.95, qty:3 },
             { name:'Pâtes', cat:'fec', price:0.89, qty:2 },
@@ -40,7 +40,7 @@ export async function bootstrapUser(uid) {
             { name:'Riz', cat:'fec', price:1.40, qty:1 },
           ]
         },
-        { emoji:'🏠', name:'Appart', members:[uid], store:'Lidl', city:'Villeurbanne',
+        { emoji:'🏠', name:'Appart', members:[uid],
           items:[
             { name:'Dentifrice', cat:'soin', price:2.20, qty:1 },
             { name:"Jus d'orange", cat:'bois', price:1.80, qty:2 },
@@ -49,7 +49,7 @@ export async function bootstrapUser(uid) {
             { name:'Lessive', cat:'men', price:5.20, qty:1 },
           ]
         },
-        { emoji:'🎉', name:'BBQ du 5 juillet', members:[uid], store:'Leclerc', city:'Bron',
+        { emoji:'🎉', name:'BBQ du 5 juillet', members:[uid],
           items:[
             { name:'Saucisses', cat:'vp', price:2.90, qty:3 },
             { name:'Bière', cat:'bois', price:4.20, qty:2 },
@@ -83,7 +83,7 @@ export async function bootstrapUser(uid) {
     } else {
       // Prod: liste unique avec 3 articles
       const listRef = await addDoc(collection(db, 'lists'), {
-        name:'Ma liste', emoji:'🙂', members:[uid], store:'Carrefour', city:'', createdAt:serverTimestamp(),
+        name:'Ma liste', emoji:'🙂', members:[uid], createdAt:serverTimestamp(),
       })
       const lid = listRef.id
       const batch = writeBatch(db)

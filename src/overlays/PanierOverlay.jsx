@@ -46,7 +46,6 @@ export default function PanierOverlay(p) {
                   </span>
                   <span style={it.tileStyle}>{it.emoji}</span>
                   <span style={it.nameStyle}>{it.name} {it.qtyLabel}</span>
-                  {it.priceLabel && <span style={it.priceBadgeStyle} title={it.priceTierTitle}>{it.priceLabel}</span>}
                 </button>
               ))}
             </div>

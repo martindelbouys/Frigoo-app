@@ -1,13 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { STORES } from '../data'
 
 const EMOJIS = ['🏠','🏡','🛒','🍽️','👪','🧑‍🤝‍🧑','📝','✨','🎯','🌿','💼','🎓','🍕','🥑','🥦','🐧','❤️','🛍️','🏖️','🌈','🌟','🎁','🏋️','🎪']
 
 export default function EditListOverlay(p) {
   const [name, setName]         = useState(p.editList?.name || '')
   const [emoji, setEmoji]       = useState(p.editList?.emoji || '📝')
-  const [store, setStore]       = useState(p.editList?.store || 'Carrefour')
-  const [city, setCity]         = useState(p.editList?.city || '')
   const [inviteText, setInviteText] = useState('')
   const fileRef = useRef()
   const inviteRef = useRef()
@@ -23,7 +20,7 @@ export default function EditListOverlay(p) {
 
   const save = () => {
     if (!name.trim()) { p.flash('Donne un nom à la liste'); return }
-    p.updateList(p.editList.id, { name: name.trim(), emoji, store, city: city.trim() })
+    p.updateList(p.editList.id, { name: name.trim(), emoji })
     p.closeOverlay()
   }
 
@@ -69,20 +66,6 @@ export default function EditListOverlay(p) {
             ))}
           </div>
 
-          {/* Magasin */}
-          <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Magasin</div>
-          <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginBottom:18 }}>
-            {STORES.map(s => (
-              <button key={s.name} onClick={()=>setStore(s.name)} style={{ display:'flex', alignItems:'center', gap:5, padding:'8px 12px', border: s.name===store ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:11, background: s.name===store ? '#FFF4F1' : '#fff', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>
-                <span>{s.emoji}</span>{s.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Ville */}
-          <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Ville</div>
-          <input value={city} onChange={e=>setCity(e.target.value)} placeholder="Ex : Lyon 7ᵉ" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600, boxSizing:'border-box', marginBottom:18 }}/>
-
           {/* Invitations */}
           <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Membres invités</div>
           <div style={{ display:'flex', gap:8, marginBottom: pendingInvites.length ? 10 : 0 }}>
@@ -114,7 +97,7 @@ export default function EditListOverlay(p) {
           )}
 
           <div style={{ fontSize:12, fontWeight:600, color:'#BDBDBD', marginTop:4, lineHeight:1.5 }}>
-            La personne rejoindra automatiquement la liste à l'ouverture de Frigoo.
+            La personne recevra une invitation à accepter dans Frigoo.
           </div>
 
         </div>

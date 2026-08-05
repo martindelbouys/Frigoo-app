@@ -110,13 +110,6 @@ export default function ParametresScreen(p) {
         {/* Preferences */}
         <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Préférences</div>
         <div style={{ background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, overflow:'hidden' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderBottom:'1px solid #F4F4F4' }}>
-            <span style={{ fontSize:18 }}>💶</span>
-            <span style={{ flex:1, fontSize:15, fontWeight:700 }}>Afficher les prix</span>
-            <button onClick={p.togglePrices} style={{ width:50, height:30, border:'none', borderRadius:16, cursor:'pointer', position:'relative', background:p.pricesToggleOn?'#E8472A':'#D9D9DC', padding:0 }}>
-              <span style={{ position:'absolute', top:3, width:24, height:24, borderRadius:'50%', background:'#fff', boxShadow:'0 1px 3px rgba(0,0,0,.25)', left:p.pricesToggleOn?23:3, transition:'left .15s' }}/>
-            </button>
-          </div>
           <button onClick={p.comingSoon} style={{ width:'100%', display:'flex', alignItems:'center', gap:12, padding:'14px 16px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left' }}>
             <span style={{ fontSize:18 }}>🏷️</span>
             <span style={{ flex:1, fontSize:15, fontWeight:700 }}>Catégories personnalisées</span>

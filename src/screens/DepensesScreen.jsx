@@ -51,18 +51,6 @@ export default function DepensesScreen(p) {
           </div>
         </div>
 
-        {/* Current cart (only on current month) */}
-        {p.isCurrentMonth && (
-          <div style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF7F5', border:'1px solid #FBE0D8', borderRadius:18, padding:'14px 16px', marginTop:12 }}>
-            <span style={{ width:40, height:40, borderRadius:11, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:21 }}>🛒</span>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, fontWeight:800 }}>Panier en cours</div>
-              <div style={{ fontSize:12, fontWeight:600, color:'#A07A6E' }}>{p.cartCount} articles dans « {p.activeListName} »</div>
-            </div>
-            <span style={{ fontSize:19, fontWeight:800, color:'#E8472A' }}>≈ {p.listTotalLabel}</span>
-          </div>
-        )}
-
         {/* Add expense (only on current month) */}
         {p.isCurrentMonth && (
           <>

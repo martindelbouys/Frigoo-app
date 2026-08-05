@@ -31,17 +31,6 @@ export default function ListsManagerOverlay(p) {
             ))}
           </div>
 
-          {/* Magasin */}
-          <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Magasin</div>
-          <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginBottom:14 }}>
-            {p.storeNames.map(s => (
-              <button key={s} onClick={()=>p.setMgrStore(s)} style={{ padding:'8px 12px', border: s===p.mgrStore ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:11, background: s===p.mgrStore ? '#FFF4F1' : '#fff', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>{s}</button>
-            ))}
-          </div>
-
-          {/* Ville */}
-          <input value={p.mgrCity} onChange={e=>p.setMgrCity(e.target.value)} placeholder="Ville (facultatif)" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600, boxSizing:'border-box', marginBottom:18 }} />
-
           {/* Invitations */}
           <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Inviter des membres</div>
           <div style={{ display:'flex', gap:8, marginBottom: p.mgrInviteEmails.length ? 10 : 0 }}>
@@ -69,7 +58,7 @@ export default function ListsManagerOverlay(p) {
           )}
 
           <div style={{ fontSize:12, fontWeight:600, color:'#BDBDBD', marginTop:6, lineHeight:1.5 }}>
-            La personne rejoindra automatiquement la liste à l'ouverture de Frigoo.
+            La personne recevra une invitation à accepter dans Frigoo.
           </div>
 
         </div>

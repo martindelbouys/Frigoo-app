@@ -101,7 +101,6 @@ export default function ListeScreen(p) {
               <button key={i} onClick={r.onAdd} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'13px 14px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left' }}>
                 <span style={r.tileStyle}>{r.emoji}</span>
                 <span style={{ flex:1, fontSize:15, fontWeight:700 }}>{r.name}</span>
-                <span style={{ fontSize:13, fontWeight:700, color:'#9A9A9A' }}>{r.priceLabel}</span>
                 <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#FDEDE9', color:'#E8472A', fontSize:21, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>+</span>
               </button>
             ))}
@@ -117,16 +116,6 @@ export default function ListeScreen(p) {
       {/* Main list content */}
       {!p.searching && (
         <div ref={p.scrollRef} className="fg-scroll" onScroll={p.onListScroll} style={{ flex:1, overflowY:'auto' }}>
-          {/* Store picker */}
-          <button onClick={p.openStorePicker} style={{ width:'calc(100% - 32px)', margin:'14px 16px 0', display:'flex', alignItems:'center', gap:11, border:'1px solid #ECECEC', background:'#fff', borderRadius:14, padding:'11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 1px 2px rgba(0,0,0,.03)' }}>
-            <span style={{ width:36, height:36, flexShrink:0, borderRadius:11, background:'#EAF4FB', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>📍</span>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A' }}>Magasin de cette liste</div>
-              <div style={{ fontSize:15, fontWeight:800, lineHeight:1.2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeStoreLabel}</div>
-            </div>
-            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', color:'#E8472A', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800 }}>Changer</span>
-          </button>
-
           {/* Category pills */}
           <div className="fg-scroll" style={{ position:'sticky', top:0, zIndex:12, display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F2F2F2', borderBottom:'1px solid #ECECEC' }}>
             {p.categories.map((c, i) => (
@@ -171,9 +160,6 @@ export default function ListeScreen(p) {
                         <span style={it.tileStyle}>{it.emoji}</span>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:15, fontWeight:700, lineHeight:1.2 }}>{it.name}</div>
-                          {it.hasPrice && (
-                            <div style={{ marginTop:4 }}><span style={it.priceBadgeStyle} title={it.priceTierTitle}>{it.priceLabel}</span></div>
-                          )}
                         </div>
                         <div style={{ display:'flex', alignItems:'center', gap:7 }}>
                           <button onClick={it.onDec} style={{ width:30, height:30, border:'none', borderRadius:9, background:'#EBEBEB', cursor:'pointer', fontSize:18, fontWeight:700, color:'#6B6B6B', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>−</button>

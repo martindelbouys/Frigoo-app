@@ -5,10 +5,9 @@ import {
 } from 'firebase/firestore'
 import { db, storage } from './firebase'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { CATS, CATALOG, STORES } from './data'
+import { CATS, CATALOG } from './data'
 import { fmt, tileStyle } from './lib/format'
-import { catById, catalogCat, emojiOf, priceOf, unitLabel } from './lib/catalog'
-import { reliabilityColor } from './lib/colors'
+import { catById, catalogCat, emojiOf, priceOf } from './lib/catalog'
 import { useSwipeGesture } from './hooks/useSwipeGesture'
 import { recipesRef } from './firestore/paths'
 import { useFrigooData } from './hooks/useFrigooData'
@@ -16,7 +15,6 @@ import { useListItems } from './hooks/useListItems'
 import { useRecipeActions } from './hooks/useRecipeActions'
 import { useListManagement } from './hooks/useListManagement'
 import { useExpenses } from './hooks/useExpenses'
-import { useMarketPrices } from './hooks/useMarketPrices'
 import { useBrandCollapse } from './hooks/useBrandCollapse'
 import { useTabPager } from './hooks/useTabPager'
 import ListeScreen from './screens/ListeScreen'
@@ -28,7 +26,6 @@ import FrigoOverlay from './overlays/FrigoOverlay'
 import RecipeOverlay from './overlays/RecipeOverlay'
 import AddSheetOverlay from './overlays/AddSheetOverlay'
 import ListsManagerOverlay from './overlays/ListsManagerOverlay'
-import StorePickerOverlay from './overlays/StorePickerOverlay'
 import NewRecipeOverlay from './overlays/NewRecipeOverlay'
 import ClearConfirmOverlay from './overlays/ClearConfirmOverlay'
 import EditListOverlay from './overlays/EditListOverlay'
@@ -50,7 +47,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const [nrIng, setNrIng]       = useState([])
   const [nrText, setNrText]     = useState('')
   const [nrEmoji, setNrEmoji]   = useState('🍽️')
-  const [storeCity, setStoreCity] = useState(undefined)
   const [toast, setToast]       = useState(null)
   const [search, setSearch]     = useState('')
 
@@ -65,26 +61,16 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   // ── Données Firestore (bootstrap + listeners + mutations du doc user) ──────
   const {
-    loading, budget, showPricesLocal, activeListId, userName, userPhoto,
+    loading, budget, activeListId, userName, userPhoto,
     lists, articles, recipes, expenses, invitations,
-    budgetUp, budgetDown, togglePrices, saveDisplayName, uploadPhoto,
+    budgetUp, budgetDown, saveDisplayName, uploadPhoto,
   } = useFrigooData(uid, userEmail, flash)
 
   // ── Computed ───────────────────────────────────────────────────────────────
-  const storeFactor = (lid = activeListId) => {
-    const l = lists.find(l => l.id === lid)
-    const s = STORES.find(s => s.name === (l && l.store))
-    return s ? s.factor : 1
-  }
-
-  const active   = lists.find(l => l.id === activeListId) || lists[0] || { name:'Ma liste', emoji:'🙂', members:[uid], store:'Carrefour', city:'' }
+  const active   = lists.find(l => l.id === activeListId) || lists[0] || { name:'Ma liste', emoji:'🙂', members:[uid] }
   const mine     = articles.filter(a => a.listId === activeListId)
   const inList   = mine.filter(a => a.place === 'liste')
   const inFridge = mine.filter(a => a.place === 'frigo')
-  const factor   = storeFactor()
-
-  // ── Prix réels Open Food Facts (médiane par enseigne/ville, si mappé) ──────
-  const { marketPrices } = useMarketPrices({ items:inList, storeName:active.store, city:active.city })
 
   // ── Article actions ────────────────────────────────────────────────────────
   const { addToList, setQty, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear } = useListItems({
@@ -99,7 +85,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   // ── List actions ───────────────────────────────────────────────────────────
   const {
-    mgrStore, setMgrStore, mgrCity, setMgrCity, mgrName, setMgrName, mgrEmoji, setMgrEmoji,
+    mgrName, setMgrName, mgrEmoji, setMgrEmoji,
     mgrInviteEmails, setMgrInviteEmails, mgrInviteText, setMgrInviteText,
     leaveList, createNamedList, addInviteToList, removeInviteFromList, addMgrInvite,
     switchList, updateList, uploadListPhoto, acceptInvite, declineInvite,
@@ -115,23 +101,10 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const { pagerRef, onPagerScroll, goToTab } = useTabPager(tab, setTab)
 
   // ── Item decoration ────────────────────────────────────────────────────────
-  const unitPrice = (a, market) => market && market.price != null ? market.price : a.price*factor
-
   const decoItem = (a) => {
-    const market = marketPrices[a.name]
-    // grey = pas de prix live (aucun tag OFF, ou recherche pas encore lancée) ; red = tag OFF mais
-    // 0 relevé pour cette enseigne/ville ; yellow (1-3 relevés) / green (> 3) = prix live.
-    const priceTier = market ? market.reliability : 'grey'
-    const priceTierTitle = market
-      ? (market.count > 0 ? market.count+' relevé(s) trouvé(s)' : 'Aucun relevé pour cette enseigne/ville, prix estimé')
-      : 'Prix estimé, pas de donnée Open Food Facts pour ce produit'
     return {
       id:a.id, name:a.name, emoji:emojiOf(a.name), qty:a.qty, checked:!!a.checked,
       tileStyle:tileStyle(34, 19, catById(a.cat).color),
-      hasPrice:showPricesLocal,
-      priceLabel:showPricesLocal ? (fmt(unitPrice(a, market))+' '+unitLabel(a.name)) : '',
-      priceBadgeStyle:{ display:'inline-block', padding:'2px 8px', borderRadius:8, fontSize:11.5, fontWeight:800, lineHeight:1.35, background:reliabilityColor(priceTier).bg, color:reliabilityColor(priceTier).fg },
-      priceTierTitle,
       qtyLabel:a.qty>1?('×'+a.qty):'',
       nameStyle:{ flex:1, fontSize:15, fontWeight:700, textDecoration:a.checked?'line-through':'none', color:a.checked?'#B7B7B7':'#15110F' },
       checkStyle:{ width:27, height:27, flexShrink:0, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:a.checked?'#E8472A':'#fff', border:a.checked?'2px solid #E8472A':'2px solid #DBDBDB' },
@@ -161,7 +134,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
       for (const [name, price] of CATALOG[id]) {
         if (name.toLowerCase().includes(q) && !seen.has(name.toLowerCase())) {
           seen.add(name.toLowerCase())
-          searchResults.push({ name, emoji:emojiOf(name), priceLabel:showPricesLocal?fmt(price*factor):'', tileStyle:tileStyle(38,20,catById(id).color), onAdd:()=>addToList(name,id,price) })
+          searchResults.push({ name, emoji:emojiOf(name), tileStyle:tileStyle(38,20,catById(id).color), onAdd:()=>addToList(name,id,price) })
         }
       }
     }
@@ -170,7 +143,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   const categories = CATS.map(c => ({ emoji:c.emoji, shortName:c.short, tileStyle:tileStyle(26,15,c.color), onOpen:()=>{ setSheetCat(c.id); setSheetText(''); setOverlay('addSheet') } }))
   const picked = inList.filter(a => a.checked).length
-  const listTotal = inList.reduce((t, a) => t+unitPrice(a, marketPrices[a.name])*a.qty, 0)
 
   // ── Recipes ────────────────────────────────────────────────────────────────
   const recipesList = recipes.map(r => ({
@@ -188,7 +160,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     id:l.id, emoji:l.emoji||'📝', name:l.name, photoURL:l.photoURL||null,
     pendingInvites:l.pendingInvites||[],
     subLabel:(l.members?.length===1?'Toi seul':((l.members?.length||1)+' membres'))
-      +(l.store?(' · 📍 '+l.store+(l.city?' · '+l.city:'')):'')
       +(' · '+itemsCount(l.id)+' article'+(itemsCount(l.id)!==1?'s':'')),
     active:l.id===activeListId,
     cardStyle:{ display:'flex', alignItems:'center', gap:12, padding:'13px 14px', borderRadius:16, background:'#fff', cursor:'pointer', border:l.id===activeListId?'2px solid #E8472A':'1px solid #F0F0F0', boxShadow:l.id===activeListId?'0 4px 14px rgba(232,71,42,.12)':'none' },
@@ -208,7 +179,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const scat = catById(sheetCat)
   const sheetItems = (CATALOG[sheetCat]||[]).map(([name, price]) => {
     const inIt = inList.some(a => a.name.toLowerCase() === name.toLowerCase())
-    return { name, emoji:emojiOf(name), priceLabel:showPricesLocal?fmt(price*factor):'', inList:inIt, notInList:!inIt, nameStyle:{ flex:1, fontSize:15, fontWeight:700, color:inIt?'#A7A7A7':'#15110F' }, onAdd:()=>addToList(name,sheetCat,price) }
+    return { name, emoji:emojiOf(name), inList:inIt, notInList:!inIt, nameStyle:{ flex:1, fontSize:15, fontWeight:700, color:inIt?'#A7A7A7':'#15110F' }, onAdd:()=>addToList(name,sheetCat,price) }
   })
 
   // ── New recipe ─────────────────────────────────────────────────────────────
@@ -247,19 +218,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     } catch(e) { flash('Erreur : '+e.code); console.error(e) }
   }
 
-  // ── Store picker ───────────────────────────────────────────────────────────
-  const activeStoreCity = storeCity !== undefined ? storeCity : (active.city || '')
-  const storeOptions = STORES.map(st => ({
-    name:st.name, emoji:st.emoji, tag:st.tag, active:st.name===active.store,
-    priceLevel:st.factor<0.92?'prix bas':(st.factor>1.1?'prix élevés':'prix moyens'),
-    cardStyle:{ display:'flex', alignItems:'center', gap:12, padding:'11px 13px', borderRadius:15, border:st.name===active.store?'2px solid #E8472A':'1px solid #F0F0F0', background:st.name===active.store?'#FFF7F5':'#fff', cursor:'pointer' },
-    onPick:async()=>{
-      const city=(activeStoreCity||'').trim()
-      await updateDoc(doc(db,'lists',activeListId), { store:st.name, city:city||active.city||'' })
-      setOverlay(null); flash('Magasin : '+st.name+' — prix mis à jour')
-    },
-  }))
-
   // tabStyle supprimé — la nav utilise la classe CSS .fg-nav
 
   // ── Loading screen ─────────────────────────────────────────────────────────
@@ -277,7 +235,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     fridgeCount:inFridge.length, cartCount:inList.length,
     searching, notSearching:!searching, searchResults,
     onAddCustom:()=>{ const n=search.trim(); if(n){ addToList(n,'foyer',1.50); setSearch('') } },
-    categories, listGroups:groupBy(inList), listEmpty:inList.length===0, listNotEmpty:inList.length>0, listTotalLabel:fmt(listTotal),
+    categories, listGroups:groupBy(inList), listEmpty:inList.length===0, listNotEmpty:inList.length>0,
     panierGroups:groupBy(inList), panierEmpty:inList.length===0, panierNotEmpty:inList.length>0,
     panierPickedLabel:picked+'/'+inList.length+' pris',
     panierBarPct:inList.length?Math.round(picked/inList.length*100):0,
@@ -313,17 +271,12 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     nrSuggestions,
     onNrPickSugg:(s)=>{ setNrIng(prev=>[...prev,{name:s.name,cat:s.cat}]); setNrText('') },
     saveNewRecipe,
-    activeStoreLabel:(active.store||'Aucun magasin')+(active.city?(' · '+active.city):''),
-    storeCity:activeStoreCity, setStoreCity,
-    useGeoloc:()=>{ setStoreCity('Villeurbanne'); flash('📍 Position détectée : Villeurbanne') },
-    storeOptions, storeNames:STORES.map(s=>s.name), mgrStore, setMgrStore,
-    mgrName, setMgrName, mgrCity, setMgrCity, mgrEmoji, setMgrEmoji,
+    mgrName, setMgrName, mgrEmoji, setMgrEmoji,
     mgrInviteEmails, setMgrInviteEmails, mgrInviteText, setMgrInviteText, addMgrInvite,
     createNamedList,
     addInviteToList, removeInviteFromList,
-    openListsMgr:()=>{ setOverlay('listsMgr'); setMgrName(''); setMgrCity(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('') },
+    openListsMgr:()=>{ setOverlay('listsMgr'); setMgrName(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('') },
     brandRef, scrollRef, onListScroll,
-    showPrices:showPricesLocal, pricesToggleOn:showPricesLocal, togglePrices,
     comingSoon:()=>flash('Bientôt disponible 🐧'),
     userName, userPhoto, saveDisplayName, uploadPhoto,
     editList: lists.find(l => l.id === editListId) || null,
@@ -337,7 +290,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     openPanier:()=>setOverlay('panier'),
     openFridge:()=>setOverlay('frigo'),
     listDropOpen, toggleListDrop:()=>setListDropOpen(v=>!v), closeListDrop:()=>setListDropOpen(false),
-    openStorePicker:()=>{ setOverlay('storePicker'); setStoreCity(active.city||'') },
     openAddDefault:()=>{ setSheetCat('fl'); setSheetText(''); setOverlay('addSheet') },
     openNewRecipe:()=>{ setOverlay('newRecipe'); setNrName(''); setNrIng([]); setNrText(''); setNrEmoji('🍽️') },
     closeOverlay:()=>setOverlay(null),
@@ -363,7 +315,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
         {overlay==='recipe'      && <RecipeOverlay        {...p} />}
         {overlay==='addSheet'    && <AddSheetOverlay      {...p} />}
         {overlay==='listsMgr'    && <ListsManagerOverlay  {...p} />}
-        {overlay==='storePicker' && <StorePickerOverlay   {...p} />}
         {overlay==='newRecipe'   && <NewRecipeOverlay     {...p} />}
         {overlay==='clear'       && <ClearConfirmOverlay  {...p} />}
         {overlay==='editList'    && <EditListOverlay      {...p} />}

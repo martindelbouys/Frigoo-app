@@ -19,7 +19,6 @@ export default function AddSheetOverlay(p) {
             <button key={i} onClick={s.onAdd} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'12px 6px', border:'none', borderBottom:'1px solid #F4F4F4', background:'transparent', cursor:'pointer', textAlign:'left' }}>
               <span style={{ fontSize:22, width:30, textAlign:'center' }}>{s.emoji}</span>
               <span style={s.nameStyle}>{s.name}</span>
-              <span style={{ fontSize:13, fontWeight:700, color:'#A0A0A0' }}>{s.priceLabel}</span>
               {s.inList && <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#EAF4FB', color:'#2E86C9', display:'flex', alignItems:'center', justifyContent:'center' }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>}
               {s.notInList && <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#FDEDE9', color:'#E8472A', fontSize:21, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>+</span>}
             </button>

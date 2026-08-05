@@ -11,7 +11,6 @@ import { bootstrapUser } from '../firestore/bootstrap'
 export function useFrigooData(uid, userEmail, flash) {
   const [loading, setLoading]                 = useState(true)
   const [budget, setBudget]                   = useState(250)
-  const [showPricesLocal, setShowPricesLocal] = useState(true)
   const [activeListId, setActiveListId]       = useState(null)
   const [userName, setUserName]               = useState('')
   const [userPhoto, setUserPhoto]             = useState('')
@@ -48,7 +47,6 @@ export function useFrigooData(uid, userEmail, flash) {
       if (!snap.exists()) return
       const d = snap.data()
       if (d.budget !== undefined) setBudget(d.budget)
-      if (d.showPrices !== undefined) setShowPricesLocal(d.showPrices)
       if (d.activeListId) setActiveListId(d.activeListId)
       if (d.name !== undefined) setUserName(d.name)
       if (d.photoURL !== undefined) setUserPhoto(d.photoURL)
@@ -121,10 +119,6 @@ export function useFrigooData(uid, userEmail, flash) {
     const n = Math.max(10, budget - 10); setBudget(n); await updateDoc(userRef(uid), { budget:n })
   }, [uid, budget])
 
-  const togglePrices = useCallback(async () => {
-    const n = !showPricesLocal; setShowPricesLocal(n); await updateDoc(userRef(uid), { showPrices:n })
-  }, [uid, showPricesLocal])
-
   const saveDisplayName = useCallback(async (name) => {
     const n = name.trim()
     setUserName(n)
@@ -146,8 +140,8 @@ export function useFrigooData(uid, userEmail, flash) {
 
   return {
     loading,
-    budget, showPricesLocal, activeListId, userName, userPhoto,
+    budget, activeListId, userName, userPhoto,
     lists, articles, recipes, expenses, invitations,
-    budgetUp, budgetDown, togglePrices, saveDisplayName, uploadPhoto,
+    budgetUp, budgetDown, saveDisplayName, uploadPhoto,
   }
 }

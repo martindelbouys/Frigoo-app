@@ -7,8 +7,6 @@ import { userRef } from '../firestore/paths'
 // Création, adhésion, invitations et mise à jour des listes partagées.
 // Porte l'état du formulaire "nouvelle liste" (mgr*) car il n'est utile qu'ici.
 export function useListManagement({ uid, userEmail, lists, invitations, articles, activeListId, flash, setOverlay }) {
-  const [mgrStore, setMgrStore]               = useState('Carrefour')
-  const [mgrCity, setMgrCity]                 = useState('')
   const [mgrName, setMgrName]                 = useState('')
   const [mgrEmoji, setMgrEmoji]               = useState('📝')
   const [mgrInviteEmails, setMgrInviteEmails] = useState([])
@@ -42,12 +40,11 @@ export function useListManagement({ uid, userEmail, lists, invitations, articles
     const invites = mgrInviteEmails.filter(e => e.includes('@'))
     const ref = await addDoc(collection(db, 'lists'), {
       name:n, emoji:mgrEmoji||'📝', members:[uid],
-      store:mgrStore||'Carrefour', city:(mgrCity||'').trim(),
       pendingInvites: invites,
       createdAt:serverTimestamp(),
     })
     await updateDoc(userRef(uid), { activeListId:ref.id })
-    setMgrName(''); setMgrCity(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('')
+    setMgrName(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('')
     setOverlay(null)
     flash('Liste « '+n+' » créée'+(invites.length ? ' · '+invites.length+' invitation'+(invites.length>1?'s':'')+' envoyée'+(invites.length>1?'s':'') : '')+' ✓')
   }
@@ -109,7 +106,7 @@ export function useListManagement({ uid, userEmail, lists, invitations, articles
   }
 
   return {
-    mgrStore, setMgrStore, mgrCity, setMgrCity, mgrName, setMgrName, mgrEmoji, setMgrEmoji,
+    mgrName, setMgrName, mgrEmoji, setMgrEmoji,
     mgrInviteEmails, setMgrInviteEmails, mgrInviteText, setMgrInviteText,
     leaveList, createNamedList, addInviteToList, removeInviteFromList, addMgrInvite,
     switchList, updateList, uploadListPhoto, acceptInvite, declineInvite,

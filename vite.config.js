@@ -28,6 +28,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2}'],
+        navigateFallbackDenylist: [/^\/__\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -38,16 +39,6 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts-files', expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 } },
-          },
-          {
-            urlPattern: /^https:\/\/prices\.openfoodfacts\.org\/api\/v1\/prices.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'off-prices',
-              networkTimeoutSeconds: 4,
-              expiration: { maxEntries: 50, maxAgeSeconds: 6 * 60 * 60 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
           },
         ],
       },
