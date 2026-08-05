@@ -66,7 +66,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Données Firestore (bootstrap + listeners + mutations du doc user) ──────
   const {
     loading, budget, showPricesLocal, activeListId, userName, userPhoto,
-    lists, articles, recipes, expenses,
+    lists, articles, recipes, expenses, invitations,
     budgetUp, budgetDown, togglePrices, saveDisplayName, uploadPhoto,
   } = useFrigooData(uid, userEmail, flash)
 
@@ -102,8 +102,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     mgrStore, setMgrStore, mgrCity, setMgrCity, mgrName, setMgrName, mgrEmoji, setMgrEmoji,
     mgrInviteEmails, setMgrInviteEmails, mgrInviteText, setMgrInviteText,
     leaveList, createNamedList, addInviteToList, removeInviteFromList, addMgrInvite,
-    switchList, updateList, uploadListPhoto,
-  } = useListManagement({ uid, lists, articles, activeListId, flash, setOverlay })
+    switchList, updateList, uploadListPhoto, acceptInvite, declineInvite,
+  } = useListManagement({ uid, userEmail, lists, invitations, articles, activeListId, flash, setOverlay })
 
   // ── Swipe gesture ──────────────────────────────────────────────────────────
   const { startSwipe, moveTouchSwipe, endTouchSwipe } = useSwipeGesture({ remove, gotIt, flash })
@@ -292,6 +292,10 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     showRecipeConfirm:recipeAsk==='confirm', showRecipeDup:recipeAsk==='dup', pendRecipeName:pendR?.name||'',
     confirmAddStep1, addRecipeWithDup:()=>commitRecipe(true), addRecipeNoDup:()=>commitRecipe(false), cancelAsk,
     myLists,
+    invitations: invitations.map(i => ({
+      id: i.id, name: i.name, emoji: i.emoji || '📝',
+      onAccept: () => acceptInvite(i.id), onDecline: () => declineInvite(i.id),
+    })),
     budget, spent, remaining, pct,
     remainingLabel:fmt(remaining), budgetLabel:fmt(budget), spentLabel:fmt(spent),
     budgetUp, budgetDown,

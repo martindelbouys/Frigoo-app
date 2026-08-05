@@ -16,16 +16,26 @@ service cloud.firestore {
 
     match /lists/{listId} {
       function isMember()  { return isSignedIn() && request.auth.uid in resource.data.members; }
-      function isInvited() { return isSignedIn() && request.auth.token.email in resource.data.pendingInvites; }
+      // .lower() : les invitations sont stockées en minuscules côté client, mais
+      // l'email du compte Google peut contenir des majuscules — sans ça, une
+      // invitation peut ne jamais matcher.
+      function isInvited() { return isSignedIn() && request.auth.token.email.lower() in resource.data.pendingInvites; }
 
       allow read:   if isMember() || isInvited();
       allow create: if isSignedIn() && request.auth.uid in request.resource.data.members;
-      // Un membre peut tout modifier ; un invité ne peut que s'ajouter lui-même
-      // aux membres et se retirer des invitations en attente, rien d'autre.
+      // Un membre peut tout modifier ; un invité ne peut que s'accepter (s'ajouter
+      // aux membres) ou se retirer des invitations en attente sans rejoindre
+      // (refus), rien d'autre.
       allow update: if isMember() || (
-        isInvited() &&
-        request.resource.data.members == resource.data.members.concat([request.auth.uid]) &&
-        request.resource.data.pendingInvites == resource.data.pendingInvites.removeAll([request.auth.token.email])
+        isInvited() && (
+          (
+            request.resource.data.members == resource.data.members.concat([request.auth.uid]) &&
+            request.resource.data.pendingInvites == resource.data.pendingInvites.removeAll([request.auth.token.email.lower()])
+          ) || (
+            request.resource.data.members == resource.data.members &&
+            request.resource.data.pendingInvites == resource.data.pendingInvites.removeAll([request.auth.token.email.lower()])
+          )
+        )
       );
       allow delete: if isMember();
 

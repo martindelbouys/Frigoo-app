@@ -61,6 +61,26 @@ export default function ParametresScreen(p) {
           <button onClick={p.onSignOut} style={{ border:'none', background:'#F4F4F5', color:'#C0392B', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'9px 14px', borderRadius:11, cursor:'pointer' }}>Déco.</button>
         </div>
 
+        {/* Invitations en attente */}
+        {p.invitations.length > 0 && (
+          <>
+            <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Invitations en attente</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {p.invitations.map(inv => (
+                <div key={inv.id} style={{ display:'flex', alignItems:'center', gap:12, background:'#FFF4F1', border:'1.5px solid #FFD9CC', borderRadius:16, padding:14 }}>
+                  <span style={{ width:44, height:44, flexShrink:0, borderRadius:13, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{inv.emoji}</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:15, fontWeight:800 }}>{inv.name}</div>
+                    <div style={{ fontSize:12, fontWeight:600, color:'#9A9A9A' }}>T'invite à rejoindre cette liste</div>
+                  </div>
+                  <button onClick={inv.onDecline} style={{ flexShrink:0, border:'none', background:'#fff', color:'#9A9A9A', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 12px', borderRadius:10, cursor:'pointer' }}>Refuser</button>
+                  <button onClick={inv.onAccept} style={{ flexShrink:0, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 12px', borderRadius:10, cursor:'pointer' }}>Accepter</button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
         {/* My lists */}
         <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B', margin:'22px 4px 10px' }}>Mes listes partagées</div>
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>

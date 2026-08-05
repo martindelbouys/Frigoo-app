@@ -1,15 +1,16 @@
 import {
   doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  collection, query, where, writeBatch, serverTimestamp, arrayUnion, arrayRemove,
+  collection, query, where, writeBatch, serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { INITIAL_RECIPES } from '../data'
 import { userRef, recipesRef, expensesRef, itemsRef } from './paths'
 
 // Assure l'existence du doc utilisateur + d'au moins une liste, nettoie les
-// doublons, rejoint les listes en attente d'invitation, et amorce les recettes
-// par défaut. Appelé une fois au démarrage, avant d'ouvrir les listeners temps réel.
-export async function bootstrapUser(uid, userEmail, flash) {
+// doublons, et amorce les recettes par défaut. Appelé une fois au démarrage,
+// avant d'ouvrir les listeners temps réel. Les invitations en attente sont
+// gérées séparément (écoute live + acceptation manuelle, voir useFrigooData).
+export async function bootstrapUser(uid) {
   const uSnap = await getDoc(userRef(uid))
   let data = uSnap.exists() ? uSnap.data() : null
 
@@ -106,24 +107,6 @@ export async function bootstrapUser(uid, userEmail, flash) {
       }
     }
     if (!data.activeListId) await updateDoc(userRef(uid), { activeListId:activeId })
-  }
-
-  // Auto-join lists where user was invited by email
-  if (userEmail && userEmail !== 'dev@frigoo.local') {
-    try {
-      const invQ = query(collection(db, 'lists'), where('pendingInvites', 'array-contains', userEmail))
-      const invSnap = await getDocs(invQ)
-      for (const d of invSnap.docs) {
-        const ld = d.data()
-        if (!(ld.members || []).includes(uid)) {
-          await updateDoc(d.ref, {
-            members: arrayUnion(uid),
-            pendingInvites: arrayRemove(userEmail),
-          })
-          if (flash) flash('Tu as rejoint « '+(ld.name||'')+' » ✓')
-        }
-      }
-    } catch(e) { console.warn('auto-join:', e.code) }
   }
 
   // Seed default recipes if none (2 exemples seulement pour ne pas noyer l'onglet)

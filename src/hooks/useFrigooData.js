@@ -19,6 +19,7 @@ export function useFrigooData(uid, userEmail, flash) {
   const [articles, setArticles]               = useState([])
   const [recipes, setRecipes]                 = useState([])
   const [expenses, setExpenses]               = useState([])
+  const [invitations, setInvitations]         = useState([])
 
   const listIdsRef = useRef([]) // track active list subscriptions
   const prevMembersRef = useRef(new Map()) // track member lists to detect who just joined
@@ -26,7 +27,7 @@ export function useFrigooData(uid, userEmail, flash) {
   // ── Bootstrap: ensure user doc + default list ──────────────────────────────
   useEffect(() => {
     let cancelled = false
-    bootstrapUser(uid, userEmail, flash)
+    bootstrapUser(uid)
       .catch(e => console.error('boot error:', e))
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
@@ -72,6 +73,16 @@ export function useFrigooData(uid, userEmail, flash) {
       setLists(nextLists)
     }, onError('listes')))
 
+    // Invitations en attente (listes où mon email figure dans pendingInvites,
+    // sans que j'aie encore accepté) — écoute live pour piloter la bannière
+    // "Liste" et la section Réglages, acceptation/refus manuels par l'utilisateur.
+    if (userEmail && userEmail !== 'dev@frigoo.local') {
+      const invitesQ = query(collection(db, 'lists'), where('pendingInvites', 'array-contains', userEmail.toLowerCase()))
+      unsubs.push(onSnapshot(invitesQ, snap => {
+        setInvitations(snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(l => !(l.members || []).includes(uid)))
+      }, onError('invitations')))
+    }
+
     // Recipes (sans orderBy pour éviter l'index Firestore manquant)
     unsubs.push(onSnapshot(recipesRef(uid), snap => {
       setRecipes(snap.docs.map(d => ({ id:d.id, ...d.data() })))
@@ -83,7 +94,7 @@ export function useFrigooData(uid, userEmail, flash) {
     }, onError('dépenses')))
 
     return () => unsubs.forEach(u => u())
-  }, [uid, loading, flash])
+  }, [uid, userEmail, loading, flash])
 
   // ── Items listeners (one per list) ─────────────────────────────────────────
   useEffect(() => {
@@ -136,7 +147,7 @@ export function useFrigooData(uid, userEmail, flash) {
   return {
     loading,
     budget, showPricesLocal, activeListId, userName, userPhoto,
-    lists, articles, recipes, expenses,
+    lists, articles, recipes, expenses, invitations,
     budgetUp, budgetDown, togglePrices, saveDisplayName, uploadPhoto,
   }
 }

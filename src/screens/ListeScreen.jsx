@@ -34,6 +34,23 @@ export default function ListeScreen(p) {
         </div>
       </div>
 
+      {/* Invitations en attente */}
+      {p.invitations.length > 0 && (
+        <div style={{ flexShrink:0, padding:'12px 16px 0' }}>
+          {p.invitations.map(inv => (
+            <div key={inv.id} style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF4F1', border:'1.5px solid #FFD9CC', borderRadius:16, padding:'11px 12px', marginBottom:8 }}>
+              <span style={{ fontSize:22, flexShrink:0 }}>{inv.emoji}</span>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4 }}>Liste partagée · invitation</div>
+                <div style={{ fontSize:14, fontWeight:800, letterSpacing:'-.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{inv.name}</div>
+              </div>
+              <button onClick={inv.onDecline} style={{ flexShrink:0, border:'none', background:'#fff', color:'#9A9A9A', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Refuser</button>
+              <button onClick={inv.onAccept} style={{ flexShrink:0, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Accepter</button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Inline list dropdown */}
       {p.listDropOpen && (
         <div style={{ background:'#FFE7DF', flexShrink:0, padding:'28px 14px 16px' }}>

@@ -6,7 +6,7 @@ import { userRef } from '../firestore/paths'
 
 // Création, adhésion, invitations et mise à jour des listes partagées.
 // Porte l'état du formulaire "nouvelle liste" (mgr*) car il n'est utile qu'ici.
-export function useListManagement({ uid, lists, articles, activeListId, flash, setOverlay }) {
+export function useListManagement({ uid, userEmail, lists, invitations, articles, activeListId, flash, setOverlay }) {
   const [mgrStore, setMgrStore]               = useState('Carrefour')
   const [mgrCity, setMgrCity]                 = useState('')
   const [mgrName, setMgrName]                 = useState('')
@@ -50,6 +50,22 @@ export function useListManagement({ uid, lists, articles, activeListId, flash, s
     setMgrName(''); setMgrCity(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('')
     setOverlay(null)
     flash('Liste « '+n+' » créée'+(invites.length ? ' · '+invites.length+' invitation'+(invites.length>1?'s':'')+' envoyée'+(invites.length>1?'s':'') : '')+' ✓')
+  }
+
+  const acceptInvite = async (listId) => {
+    const inv = invitations.find(i => i.id === listId)
+    await updateDoc(doc(db, 'lists', listId), {
+      members: arrayUnion(uid),
+      pendingInvites: arrayRemove(userEmail.toLowerCase()),
+    })
+    await updateDoc(userRef(uid), { activeListId: listId })
+    flash('Tu as rejoint « '+(inv?.name||'')+' » ✓')
+  }
+
+  const declineInvite = async (listId) => {
+    const inv = invitations.find(i => i.id === listId)
+    await updateDoc(doc(db, 'lists', listId), { pendingInvites: arrayRemove(userEmail.toLowerCase()) })
+    flash('Invitation refusée · « '+(inv?.name||'')+' »')
   }
 
   const addInviteToList = async (listId, email) => {
@@ -96,6 +112,6 @@ export function useListManagement({ uid, lists, articles, activeListId, flash, s
     mgrStore, setMgrStore, mgrCity, setMgrCity, mgrName, setMgrName, mgrEmoji, setMgrEmoji,
     mgrInviteEmails, setMgrInviteEmails, mgrInviteText, setMgrInviteText,
     leaveList, createNamedList, addInviteToList, removeInviteFromList, addMgrInvite,
-    switchList, updateList, uploadListPhoto,
+    switchList, updateList, uploadListPhoto, acceptInvite, declineInvite,
   }
 }
