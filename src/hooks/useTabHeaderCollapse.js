@@ -1,35 +1,31 @@
 import { useRef, useCallback, useLayoutEffect } from 'react'
 
-// Replie le header d'un onglet (Recettes/Dépenses/Réglages) au scroll du contenu.
-// Même logique que useBrandCollapse, avec sa propre classe/variable CSS pour ne
-// pas interférer avec le header "frigoo" de l'écran Liste.
+// Replie le header d'un onglet (Recettes/Dépenses/Réglages) au scroll du
+// contenu. Même logique que useBrandCollapse (repli continu suivant le doigt
+// via --collapse, sans transition CSS ni seuil), avec sa propre classe/
+// variable CSS pour ne pas interférer avec le header "frigoo" de l'écran Liste.
 export function useTabHeaderCollapse() {
-  const headerRef    = useRef(null)
-  const scrollRaf     = useRef(null)
-  const collapsedRef  = useRef(false)
+  const headerRef = useRef(null)
+  const scrollRaf  = useRef(null)
+  const heightRef  = useRef(90)
 
   const measure = useCallback(() => {
     const el = headerRef.current
     if (!el) return
-    el.style.setProperty('--tab-h', el.scrollHeight + 'px')
-  }, [])
-
-  const applyCollapsed = useCallback((next) => {
-    const el = headerRef.current
-    if (!el || collapsedRef.current === next) return
-    collapsedRef.current = next
-    el.classList.toggle('tab-collapsed', next)
+    const prevMaxHeight = el.style.maxHeight
+    el.style.maxHeight = 'none'
+    heightRef.current = el.scrollHeight || 90
+    el.style.maxHeight = prevMaxHeight
+    el.style.setProperty('--tab-h', heightRef.current + 'px')
   }, [])
 
   const evaluate = useCallback((scrollTop) => {
     const el = headerRef.current
     if (!el) return
-    const h = el.scrollHeight || 90
-    const collapseAt = h * 0.3
-    const expandAt   = h * 0.08
-    if (!collapsedRef.current && scrollTop > collapseAt) applyCollapsed(true)
-    else if (collapsedRef.current && scrollTop < expandAt) applyCollapsed(false)
-  }, [applyCollapsed])
+    const collapseRange = heightRef.current * 0.3
+    const progress = collapseRange > 0 ? Math.min(1, Math.max(0, scrollTop / collapseRange)) : 0
+    el.style.setProperty('--collapse', progress)
+  }, [])
 
   const onScroll = useCallback((e) => {
     const t = e.target.scrollTop

@@ -1,45 +1,41 @@
 import { useRef, useCallback, useLayoutEffect } from 'react'
 
 // Replie le header "frigoo" au scroll de la liste.
-// - Mesure la vraie hauteur du header (scrollHeight) et l'expose en variable
-//   CSS --brand-h, utilisée comme valeur "ouverte" de max-height à la place
-//   d'un chiffre fixe déconnecté du contenu réel — la transition CSS colle
-//   ainsi au mouvement visible au lieu d'avoir un temps mort puis un claquement.
-// - Le seuil de repli/déploiement est calculé en proportion de cette hauteur
-//   mesurée (pas une valeur fixe en dur), avec une hystérésis entre le seuil
-//   de repli et celui de ré-ouverture pour éviter le flapping près du seuil.
+// - Mesure la vraie hauteur "ouverte" du header (hors influence du repli en
+//   cours) et l'expose en variable CSS --brand-h.
+// - Le repli suit le doigt en continu via --collapse (0 → 1), recalculé à
+//   chaque frame de scroll (rAF) et appliqué SANS transition CSS : pas de
+//   seuil ni d'animation qui se déclenche après coup, donc pas de décalage
+//   entre le geste et ce qui se passe à l'écran. Repli complet atteint à 30%
+//   de la hauteur du header scrollée (même vitesse que l'ancien seuil), mais
+//   en continu au lieu d'un claquement en deux temps.
 // - `resyncDeps` permet de re-mesurer et de revalider l'état contre le
 //   scrollTop courant quand le contenu de la liste change (ex: suppression
 //   d'articles), pour éviter qu'il reste bloqué si le navigateur a ajusté
 //   le scrollTop sans déclencher d'événement `scroll`.
 export function useBrandCollapse(resyncDeps = []) {
-  const brandRef    = useRef(null)
-  const scrollRef   = useRef(null)
-  const scrollRaf    = useRef(null)
-  const collapsedRef = useRef(false)
+  const brandRef  = useRef(null)
+  const scrollRef = useRef(null)
+  const scrollRaf = useRef(null)
+  const heightRef = useRef(220)
 
   const measure = useCallback(() => {
     const el = brandRef.current
     if (!el) return
-    el.style.setProperty('--brand-h', el.scrollHeight + 'px')
-  }, [])
-
-  const applyCollapsed = useCallback((next) => {
-    const el = brandRef.current
-    if (!el || collapsedRef.current === next) return
-    collapsedRef.current = next
-    el.classList.toggle('brand-collapsed', next)
+    const prevMaxHeight = el.style.maxHeight
+    el.style.maxHeight = 'none' // mesure la hauteur réelle, pas la valeur repliée en cours
+    heightRef.current = el.scrollHeight || 220
+    el.style.maxHeight = prevMaxHeight
+    el.style.setProperty('--brand-h', heightRef.current + 'px')
   }, [])
 
   const evaluate = useCallback((scrollTop) => {
     const el = brandRef.current
     if (!el) return
-    const h = el.scrollHeight || 220
-    const collapseAt = h * 0.3  // repli une fois ~30% de la hauteur du header scrollée
-    const expandAt   = h * 0.08 // ré-ouverture seulement en dessous de ~8% (hystérésis)
-    if (!collapsedRef.current && scrollTop > collapseAt) applyCollapsed(true)
-    else if (collapsedRef.current && scrollTop < expandAt) applyCollapsed(false)
-  }, [applyCollapsed])
+    const collapseRange = heightRef.current * 0.3 // repli complet à ~30% de la hauteur scrollée
+    const progress = collapseRange > 0 ? Math.min(1, Math.max(0, scrollTop / collapseRange)) : 0
+    el.style.setProperty('--collapse', progress)
+  }, [])
 
   const onListScroll = useCallback((e) => {
     const t = e.target.scrollTop

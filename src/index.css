@@ -120,44 +120,33 @@ input, select, textarea {
   max-width: 100%;
 }
 
-/* Brand header scroll collapse — géré par le compositor (pas de reflow) */
+/* Brand header scroll collapse — suit le doigt en continu via --collapse
+   (0 = ouvert, 1 = replié), recalculé à chaque frame de scroll par
+   useBrandCollapse. Volontairement sans transition CSS : une transition sur
+   une valeur déjà mise à jour 60x/s ne fait que rajouter un délai entre le
+   geste et le rendu, ce qui donnait l'impression que le bandeau "partait"
+   après coup plutôt que de suivre le doigt. */
 .brand-header {
   overflow: hidden;
-  max-height: var(--brand-h, 400px);
-  will-change: max-height, opacity;
-  /* Isole la mise en page interne du header pour que son animation de repli
-     ne déclenche pas un recalcul de layout sur toute la page à chaque frame. */
+  max-height: calc(var(--brand-h, 400px) * (1 - var(--collapse, 0)));
+  will-change: max-height;
+  /* Isole la mise en page interne du header pour que son repli ne déclenche
+     pas un recalcul de layout sur toute la page à chaque frame. */
   contain: layout style;
-  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.32s ease;
-}
-.brand-header.brand-collapsed {
-  max-height: 0;
 }
 .brand-header-inner {
-  transition: opacity 0.2s ease;
-}
-.brand-header.brand-collapsed .brand-header-inner {
-  opacity: 0;
-  pointer-events: none;
+  opacity: calc(1 - var(--collapse, 0));
 }
 
-/* Tab header scroll collapse (Recettes/Dépenses/Réglages) — overflow visible à l'état
-   ouvert pour laisser la mascotte déborder du bandeau sans agrandir sa hauteur. */
+/* Tab header scroll collapse (Recettes/Dépenses/Réglages) — même logique.
+   overflow visible pour laisser la mascotte déborder du bandeau sans
+   agrandir sa hauteur. */
 .tab-header {
   overflow: visible;
-  max-height: var(--tab-h, 400px);
+  max-height: calc(var(--tab-h, 400px) * (1 - var(--collapse, 0)));
+  opacity: calc(1 - var(--collapse, 0));
   will-change: max-height, opacity;
-  /* layout+style seulement (pas paint) : on isole le recalcul de mise en page
-     sans forcer de clipping, pour laisser la mascotte déborder du bandeau. */
   contain: layout style;
-  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
-}
-.tab-header.tab-collapsed {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
 }
 
 @keyframes fgToast {

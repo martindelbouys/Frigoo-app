@@ -1,6 +1,7 @@
 const EMOJIS = ['🍽️','🍕','🍝','🥗','🍲','🥘','🫕','🍜','🍛','🥙','🌮','🫔','🥪','🍱','🥞','🧆','🍳','🥚','🫛','🥦','🍖','🍗','🐟','🍰','🎂','🍮']
 
 export default function NewRecipeOverlay(p) {
+  const searchingIng = p.nrText.trim().length > 0
   return (
     <div style={{ position:'absolute', inset:0, zIndex:45, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
       <div onClick={p.closeOverlay} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.42)' }}/>
@@ -15,49 +16,65 @@ export default function NewRecipeOverlay(p) {
           </div>
           <button onClick={p.closeOverlay} style={{ width:32, height:32, flexShrink:0, border:'none', borderRadius:10, background:'#F4F4F5', color:'#6B6B6B', fontSize:18, fontWeight:700, cursor:'pointer', lineHeight:1 }}>×</button>
         </div>
-        <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'12px 18px' }}>
 
-          {/* Emoji picker */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
-            {EMOJIS.map(e => (
-              <button key={e} onClick={()=>p.setNrEmoji(e)} style={{ width:38, height:38, border: e===p.nrEmoji ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:10, background: e===p.nrEmoji ? '#FFF4F1' : '#fff', fontSize:19, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>{e}</button>
-            ))}
+        {/* Ingrédient : champ toujours visible, hors du scroll pour ne jamais être coupé */}
+        <div style={{ flexShrink:0, padding:'12px 18px 0' }}>
+          <div style={{ display:'flex', gap:8 }}>
+            <input value={p.nrText} onChange={e=>p.setNrText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&p.onNrAddIng()} placeholder="Ajouter un ingrédient…" autoFocus={searchingIng} style={{ flex:1, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600 }} />
+            {searchingIng
+              ? <button onClick={()=>p.setNrText('')} style={{ flexShrink:0, border:'none', background:'#F4F4F5', color:'#6B6B6B', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'11px 14px', borderRadius:11, cursor:'pointer' }}>Annuler</button>
+              : <button onClick={p.onNrAddIng} style={{ flexShrink:0, border:'none', background:'#15110F', color:'#fff', fontFamily:'inherit', fontSize:14, fontWeight:800, padding:'11px 16px', borderRadius:11, cursor:'pointer' }}>+ Ajouter</button>
+            }
           </div>
+        </div>
 
-          <input value={p.nrName} onChange={e=>p.setNrName(e.target.value)} placeholder="Nom de la recette (ex: Pâtes carbo)" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:12, padding:'13px 14px', fontFamily:'inherit', fontSize:16, fontWeight:700, boxSizing:'border-box', marginBottom:14 }} />
+        {searchingIng ? (
+          /* Mode recherche : ne montre que les suggestions, plein écran, rien d'autre à toucher */
+          <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'12px 18px' }}>
+            <div style={{ background:'#fff', border:'1px solid #ECECEC', borderRadius:13, overflow:'hidden' }}>
+              {p.nrSuggestions.map((s, i) => (
+                <button key={i} onClick={()=>p.onNrPickSugg(s)} style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'12px 14px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left', fontFamily:'inherit' }}>
+                  <span style={{ fontSize:18, width:26, textAlign:'center' }}>{s.emoji}</span>
+                  <span style={{ fontSize:14, fontWeight:700 }}>{s.name}</span>
+                </button>
+              ))}
+              <button onClick={p.onNrAddIng} style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'12px 14px', border:'none', background:'#FFFBFA', cursor:'pointer', textAlign:'left', fontFamily:'inherit' }}>
+                <span style={{ width:26, textAlign:'center', fontSize:19, color:'#E8472A', fontWeight:700, lineHeight:1 }}>+</span>
+                <span style={{ fontSize:14, fontWeight:700 }}>Ajouter « {p.nrText.trim()} »</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'12px 18px' }}>
 
-          {p.nrIngredients.length > 0 && (
-            <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px', marginBottom:12 }}>
-              {p.nrIngredients.map((ing, i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px' }}>
-                  <span style={{ fontSize:18 }}>{ing.emoji}</span>
-                  <span style={{ flex:1, fontSize:14, fontWeight:700 }}>{ing.name}</span>
-                  <button onClick={ing.onRemove} style={{ border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
-                </div>
+            {/* Emoji picker */}
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
+              {EMOJIS.map(e => (
+                <button key={e} onClick={()=>p.setNrEmoji(e)} style={{ width:38, height:38, border: e===p.nrEmoji ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:10, background: e===p.nrEmoji ? '#FFF4F1' : '#fff', fontSize:19, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>{e}</button>
               ))}
             </div>
-          )}
 
-          <div style={{ position:'relative' }}>
-            <div style={{ display:'flex', gap:8 }}>
-              <input value={p.nrText} onChange={e=>p.setNrText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&p.onNrAddIng()} placeholder="Ajouter un ingrédient…" style={{ flex:1, border:'1.5px solid #ECECEC', outline:'none', borderRadius:11, padding:'11px 13px', fontFamily:'inherit', fontSize:14, fontWeight:600 }} />
-              <button onClick={p.onNrAddIng} style={{ flexShrink:0, border:'none', background:'#15110F', color:'#fff', fontFamily:'inherit', fontSize:14, fontWeight:800, padding:'11px 16px', borderRadius:11, cursor:'pointer' }}>+ Ajouter</button>
-            </div>
-            {p.nrSuggestions.length > 0 && (
-              <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, right:0, background:'#fff', border:'1px solid #ECECEC', borderRadius:13, overflow:'hidden', zIndex:10, boxShadow:'0 4px 16px rgba(0,0,0,.1)' }}>
-                {p.nrSuggestions.map((s, i) => (
-                  <button key={i} onMouseDown={e=>{e.preventDefault();p.onNrPickSugg(s)}} style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 14px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left', fontFamily:'inherit' }}>
-                    <span style={{ fontSize:18, width:26, textAlign:'center' }}>{s.emoji}</span>
-                    <span style={{ fontSize:14, fontWeight:700 }}>{s.name}</span>
-                  </button>
+            <input value={p.nrName} onChange={e=>p.setNrName(e.target.value)} placeholder="Nom de la recette (ex: Pâtes carbo)" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:12, padding:'13px 14px', fontFamily:'inherit', fontSize:16, fontWeight:700, boxSizing:'border-box', marginBottom:14 }} />
+
+            {p.nrIngredients.length > 0 && (
+              <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px' }}>
+                {p.nrIngredients.map((ing, i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px' }}>
+                    <span style={{ fontSize:18 }}>{ing.emoji}</span>
+                    <span style={{ flex:1, fontSize:14, fontWeight:700 }}>{ing.name}</span>
+                    <button onClick={ing.onRemove} style={{ border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                  </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
-        <div style={{ flexShrink:0, padding:'12px 18px', paddingBottom:'max(26px, env(safe-area-inset-bottom))' }}>
-          <button onClick={p.saveNewRecipe} style={{ width:'100%', border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:16, fontWeight:800, padding:16, borderRadius:15, cursor:'pointer', opacity:(p.nrName.trim()&&p.nrHasIng)?1:0.45 }}>Enregistrer la recette</button>
-        </div>
+        )}
+
+        {!searchingIng && (
+          <div style={{ flexShrink:0, padding:'12px 18px', paddingBottom:'max(26px, env(safe-area-inset-bottom))' }}>
+            <button onClick={p.saveNewRecipe} style={{ width:'100%', border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:16, fontWeight:800, padding:16, borderRadius:15, cursor:'pointer', opacity:(p.nrName.trim()&&p.nrHasIng)?1:0.45 }}>Enregistrer la recette</button>
+          </div>
+        )}
       </div>
     </div>
   )
