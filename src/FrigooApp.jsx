@@ -114,8 +114,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
       onRebuy:()=>rebuy(a.id, a.listId),
       onRemove:()=>remove(a.id, a.listId),
       onSwipeStart:(e)=>startSwipe(a.id, a.listId, e),
-      onTouchMove:moveTouchSwipe,
-      onTouchEnd:endTouchSwipe,
     }
   }
 
@@ -134,7 +132,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
       for (const [name, price] of CATALOG[id]) {
         if (name.toLowerCase().includes(q) && !seen.has(name.toLowerCase())) {
           seen.add(name.toLowerCase())
-          searchResults.push({ name, emoji:emojiOf(name), tileStyle:tileStyle(38,20,catById(id).color), onAdd:()=>addToList(name,id,price) })
+          const already = inList.some(a => a.name.toLowerCase() === name.toLowerCase())
+          searchResults.push({ name, emoji:emojiOf(name), tileStyle:tileStyle(38,20,catById(id).color), inList:already, onAdd:()=>addToList(name,id,price) })
         }
       }
     }
@@ -184,10 +183,10 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
 
   // ── New recipe ─────────────────────────────────────────────────────────────
   const nrIngredients = nrIng.map((ing, idx) => ({ name:ing.name, emoji:emojiOf(ing.name), onRemove:()=>setNrIng(s=>s.filter((_,i)=>i!==idx)) }))
-  const nrSuggestions = nrText.trim().length >= 2
+  const nrSuggestions = nrText.trim().length >= 1
     ? Object.entries(CATALOG).flatMap(([cat, items]) =>
         items.filter(([n]) => n.toLowerCase().includes(nrText.trim().toLowerCase())).map(([n]) => ({ name:n, cat, emoji:emojiOf(n) }))
-      ).slice(0, 6)
+      ).slice(0, 8)
     : []
 
   const saveNewRecipe = async () => {
@@ -277,6 +276,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     addInviteToList, removeInviteFromList,
     openListsMgr:()=>{ setOverlay('listsMgr'); setMgrName(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('') },
     brandRef, scrollRef, onListScroll,
+    onListTouchMove:moveTouchSwipe, onListTouchEnd:endTouchSwipe,
     comingSoon:()=>flash('Bientôt disponible 🐧'),
     userName, userPhoto, saveDisplayName, uploadPhoto,
     editList: lists.find(l => l.id === editListId) || null,

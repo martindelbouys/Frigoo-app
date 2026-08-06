@@ -8,6 +8,22 @@ export default function ListeScreen(p) {
     return () => document.removeEventListener('click', close)
   }, [p.listDropOpen])
 
+  // Écouteurs natifs passive (plutôt que onTouchMove/onTouchEnd React sur
+  // chaque ligne) : un seul listener délégué sur le conteneur, qui ne bloque
+  // jamais le scroll natif en attendant le thread JS — au lieu d'un listener
+  // actif par article, ce qui cassait la fluidité du scroll sur cet onglet.
+  useEffect(() => {
+    if (p.searching) return
+    const el = p.scrollRef.current
+    if (!el) return
+    el.addEventListener('touchmove', p.onListTouchMove, { passive: true })
+    el.addEventListener('touchend', p.onListTouchEnd, { passive: true })
+    return () => {
+      el.removeEventListener('touchmove', p.onListTouchMove)
+      el.removeEventListener('touchend', p.onListTouchEnd)
+    }
+  }, [p.searching, p.scrollRef, p.onListTouchMove, p.onListTouchEnd])
+
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
       {/* Brand header */}
@@ -101,7 +117,10 @@ export default function ListeScreen(p) {
               <button key={i} onClick={r.onAdd} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'13px 14px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left' }}>
                 <span style={r.tileStyle}>{r.emoji}</span>
                 <span style={{ flex:1, fontSize:15, fontWeight:700 }}>{r.name}</span>
-                <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#FDEDE9', color:'#E8472A', fontSize:21, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>+</span>
+                {r.inList
+                  ? <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#EAF4FB', color:'#2E86C9', display:'flex', alignItems:'center', justifyContent:'center' }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                  : <span style={{ width:30, height:30, flexShrink:0, borderRadius:9, background:'#FDEDE9', color:'#E8472A', fontSize:21, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>+</span>
+                }
               </button>
             ))}
             <button onClick={p.onAddCustom} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:14, border:'none', background:'#FFFBFA', cursor:'pointer', textAlign:'left' }}>
@@ -156,7 +175,7 @@ export default function ListeScreen(p) {
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="5" y1="10" x2="19" y2="10"/><line x1="8.5" y1="5" x2="8.5" y2="7.5"/><line x1="8.5" y1="13.5" x2="8.5" y2="16"/></svg>
                       </div>
                       {/* Item row */}
-                      <div onMouseDown={it.onSwipeStart} onTouchStart={it.onSwipeStart} onTouchMove={it.onTouchMove} onTouchEnd={it.onTouchEnd} style={{ display:'flex', alignItems:'center', gap:9, padding:'11px 12px', background:'#fff', position:'relative', zIndex:1, touchAction:'pan-y', userSelect:'none', cursor:'grab' }}>
+                      <div onMouseDown={it.onSwipeStart} onTouchStart={it.onSwipeStart} style={{ display:'flex', alignItems:'center', gap:9, padding:'11px 12px', background:'#fff', position:'relative', zIndex:1, touchAction:'pan-y', userSelect:'none', cursor:'grab' }}>
                         <span style={it.tileStyle}>{it.emoji}</span>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:15, fontWeight:700, lineHeight:1.2 }}>{it.name}</div>
