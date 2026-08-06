@@ -6,9 +6,12 @@ import { useRef, useCallback, useLayoutEffect } from 'react'
 // - Le repli suit le doigt en continu via --collapse (0 → 1), recalculé à
 //   chaque frame de scroll (rAF) et appliqué SANS transition CSS : pas de
 //   seuil ni d'animation qui se déclenche après coup, donc pas de décalage
-//   entre le geste et ce qui se passe à l'écran. Repli complet atteint à 30%
-//   de la hauteur du header scrollée (même vitesse que l'ancien seuil), mais
-//   en continu au lieu d'un claquement en deux temps.
+//   entre le geste et ce qui se passe à l'écran. Repli complet atteint
+//   exactement quand on a scrollé la hauteur du header (1px scrollé = 1px de
+//   repli) — un ratio plus serré (ex: repli complet à 30% de la hauteur)
+//   comprime toute la transition dans une distance de scroll minuscule,
+//   ce qui la rend imperceptible (elle a l'air de se couper plutôt que de
+//   s'estomper).
 // - `resyncDeps` permet de re-mesurer et de revalider l'état contre le
 //   scrollTop courant quand le contenu de la liste change (ex: suppression
 //   d'articles), pour éviter qu'il reste bloqué si le navigateur a ajusté
@@ -32,7 +35,7 @@ export function useBrandCollapse(resyncDeps = []) {
   const evaluate = useCallback((scrollTop) => {
     const el = brandRef.current
     if (!el) return
-    const collapseRange = heightRef.current * 0.3 // repli complet à ~30% de la hauteur scrollée
+    const collapseRange = heightRef.current // repli complet une fois la hauteur du header scrollée
     const progress = collapseRange > 0 ? Math.min(1, Math.max(0, scrollTop / collapseRange)) : 0
     el.style.setProperty('--collapse', progress)
   }, [])

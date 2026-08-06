@@ -47,17 +47,8 @@ export default function NewRecipeOverlay(p) {
         ) : (
           <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'12px 18px' }}>
 
-            {/* Emoji picker */}
-            <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
-              {EMOJIS.map(e => (
-                <button key={e} onClick={()=>p.setNrEmoji(e)} style={{ width:38, height:38, border: e===p.nrEmoji ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:10, background: e===p.nrEmoji ? '#FFF4F1' : '#fff', fontSize:19, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>{e}</button>
-              ))}
-            </div>
-
-            <input value={p.nrName} onChange={e=>p.setNrName(e.target.value)} placeholder="Nom de la recette (ex: Pâtes carbo)" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:12, padding:'13px 14px', fontFamily:'inherit', fontSize:16, fontWeight:700, boxSizing:'border-box', marginBottom:14 }} />
-
             {p.nrIngredients.length > 0 && (
-              <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px' }}>
+              <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px', marginBottom:14 }}>
                 {p.nrIngredients.map((ing, i) => (
                   <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px' }}>
                     <span style={{ fontSize:18 }}>{ing.emoji}</span>
@@ -67,6 +58,15 @@ export default function NewRecipeOverlay(p) {
                 ))}
               </div>
             )}
+
+            {/* Emoji picker */}
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
+              {EMOJIS.map(e => (
+                <button key={e} onClick={()=>p.setNrEmoji(e)} style={{ width:38, height:38, border: e===p.nrEmoji ? '2px solid #E8472A' : '1.5px solid #ECECEC', borderRadius:10, background: e===p.nrEmoji ? '#FFF4F1' : '#fff', fontSize:19, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>{e}</button>
+              ))}
+            </div>
+
+            <input value={p.nrName} onChange={e=>p.setNrName(e.target.value)} placeholder="Nom de la recette (ex: Pâtes carbo)" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:12, padding:'13px 14px', fontFamily:'inherit', fontSize:16, fontWeight:700, boxSizing:'border-box' }} />
           </div>
         )}
 

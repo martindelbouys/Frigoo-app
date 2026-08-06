@@ -79,6 +79,19 @@ export default function EditRecipeOverlay(p) {
         ) : (
           <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'12px 18px' }}>
 
+            {/* Ingrédients */}
+            {ing.length > 0 && (
+              <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px', marginBottom:14 }}>
+                {ing.map((item, i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px' }}>
+                    <span style={{ fontSize:18 }}>{emojiOf(item.name)}</span>
+                    <span style={{ flex:1, fontSize:14, fontWeight:700 }}>{item.name}</span>
+                    <button onClick={()=>setIng(prev=>prev.filter((_,j)=>j!==i))} style={{ border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Emoji picker */}
             <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:14 }}>
               {EMOJIS.map(e => (
@@ -90,7 +103,7 @@ export default function EditRecipeOverlay(p) {
             <input value={name} onChange={e=>setName(e.target.value)} placeholder="Nom de la recette" style={{ width:'100%', border:'1.5px solid #ECECEC', outline:'none', borderRadius:12, padding:'13px 14px', fontFamily:'inherit', fontSize:16, fontWeight:700, boxSizing:'border-box', marginBottom:14 }} />
 
             {/* Photo */}
-            <button onClick={()=>fileRef.current.click()} style={{ display:'flex', alignItems:'center', gap:10, width:'100%', border:'1.5px solid #ECECEC', borderRadius:12, padding:'11px 14px', background: r.photoURL ? '#F8F8F8' : '#fff', cursor:'pointer', marginBottom:14, boxSizing:'border-box' }}>
+            <button onClick={()=>fileRef.current.click()} style={{ display:'flex', alignItems:'center', gap:10, width:'100%', border:'1.5px solid #ECECEC', borderRadius:12, padding:'11px 14px', background: r.photoURL ? '#F8F8F8' : '#fff', cursor:'pointer', boxSizing:'border-box' }}>
               {r.photoURL
                 ? <img src={r.photoURL} alt="" style={{ width:36, height:36, borderRadius:8, objectFit:'cover' }}/>
                 : <span style={{ fontSize:22 }}>📷</span>
@@ -98,21 +111,6 @@ export default function EditRecipeOverlay(p) {
               <span style={{ fontSize:13, fontWeight:700, color:'#6B6B6B' }}>{r.photoURL ? 'Changer la photo' : 'Ajouter une photo'}</span>
             </button>
             <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e=>{ p.uploadRecipePhoto(r.id, e.target.files[0]); e.target.value='' }}/>
-
-            {/* Ingrédients */}
-            <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#9A9A9A', marginBottom:8 }}>Ingrédients</div>
-
-            {ing.length > 0 && (
-              <div style={{ background:'#F2F2F2', borderRadius:14, padding:'8px 4px' }}>
-                {ing.map((item, i) => (
-                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px' }}>
-                    <span style={{ fontSize:18 }}>{emojiOf(item.name)}</span>
-                    <span style={{ flex:1, fontSize:14, fontWeight:700 }}>{item.name}</span>
-                    <button onClick={()=>setIng(prev=>prev.filter((_,j)=>j!==i))} style={{ border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 

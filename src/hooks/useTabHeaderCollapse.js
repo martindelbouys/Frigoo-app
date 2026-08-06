@@ -22,7 +22,7 @@ export function useTabHeaderCollapse() {
   const evaluate = useCallback((scrollTop) => {
     const el = headerRef.current
     if (!el) return
-    const collapseRange = heightRef.current * 0.3
+    const collapseRange = heightRef.current // repli complet une fois la hauteur du header scrollée
     const progress = collapseRange > 0 ? Math.min(1, Math.max(0, scrollTop / collapseRange)) : 0
     el.style.setProperty('--collapse', progress)
   }, [])
