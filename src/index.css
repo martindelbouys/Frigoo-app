@@ -120,20 +120,29 @@ input, select, textarea {
   max-width: 100%;
 }
 
-/* Brand header (écran Liste) — fixe, ne se replie plus au scroll. Après
-   plusieurs tentatives de repli progressif jamais vraiment convaincantes
-   (claquement au seuil, puis repli "instantané" une fois rendu continu), un
-   header simplement statique pendant que le contenu scroll en dessous s'est
-   avéré le comportement demandé. */
+/* Logo décoratif de l'écran Liste — se replie au scroll, en suivant le doigt
+   en continu via --collapse (0 → 1, recalculé à chaque frame par
+   useBrandCollapse). Le sélecteur de liste (le vrai contenu utile) est un
+   élément séparé, toujours visible, pas concerné par ce repli — seul le
+   visuel décoratif se réduit, comme le carrousel de la référence fournie. */
 .brand-header {
+  overflow: hidden;
+  max-height: calc(var(--brand-h, 120px) * (1 - var(--collapse, 0)));
   contain: layout style;
 }
+.brand-header-inner {
+  opacity: calc(1 - var(--collapse, 0));
+}
 
-/* Tab header (Recettes/Dépenses/Réglages) — même chose, fixe. overflow
-   visible pour laisser la mascotte déborder du bandeau sans agrandir sa
-   hauteur. */
+/* Mascotte décorative des onglets Recettes/Dépenses/Réglages — le titre de
+   l'onglet est un élément séparé, à côté, jamais affecté. La mascotte est
+   positionnée en absolute dans un conteneur 0×0 (ne prend jamais de place
+   dans la mise en page), donc un simple fondu + réduction suffit ici, pas
+   besoin de repli de hauteur comme pour le logo de l'écran Liste. */
 .tab-header {
-  overflow: visible;
+  opacity: calc(1 - var(--collapse, 0));
+  transform: scale(calc(1 - var(--collapse, 0) * 0.25));
+  transform-origin: left center;
   contain: layout style;
 }
 

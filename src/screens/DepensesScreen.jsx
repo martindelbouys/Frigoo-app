@@ -1,18 +1,19 @@
+import { useTabHeaderCollapse } from '../hooks/useTabHeaderCollapse'
+
 export default function DepensesScreen(p) {
   const remaining = p.budget - p.spent
   const remainColor = remaining < 0 ? '#FFE3B0' : '#fff'
+  const { headerRef, onScroll } = useTabHeaderCollapse()
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', paddingTop:'env(safe-area-inset-top)' }}>
-      <div className="tab-header" style={{ flexShrink:0 }}>
-        <div style={{ padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Dépenses</div>
-          <div style={{ position:'relative', width:0, height:0 }}>
-            <img src="/uploads/penguin-abaque.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
-          </div>
+      <div style={{ flexShrink:0, padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Dépenses</div>
+        <div ref={headerRef} className="tab-header" style={{ position:'relative', width:0, height:0 }}>
+          <img src="/uploads/penguin-abaque.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
         </div>
       </div>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
+      <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
 
         {/* Month selector */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'#fff', border:'1px solid #F0F0F0', borderRadius:16, padding:'10px 14px', marginBottom:12 }}>

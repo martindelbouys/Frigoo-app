@@ -1,15 +1,16 @@
+import { useTabHeaderCollapse } from '../hooks/useTabHeaderCollapse'
+
 export default function CuisineScreen(p) {
+  const { headerRef, onScroll } = useTabHeaderCollapse()
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
-      <div className="tab-header" style={{ flexShrink:0 }}>
-        <div style={{ padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
-          <div style={{ position:'relative', width:0, height:0 }}>
-            <img src="/uploads/penguin-chef.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
-          </div>
+      <div style={{ flexShrink:0, padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
+        <div ref={headerRef} className="tab-header" style={{ position:'relative', width:0, height:0 }}>
+          <img src="/uploads/penguin-chef.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
         </div>
       </div>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
+      <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
         {p.recipes.map((r, i) => (
           <div key={i} style={{ flexShrink:0, background:'#fff', border:'1px solid #F0F0F0', borderRadius:20, overflow:'hidden', boxShadow:'0 1px 2px rgba(0,0,0,.04), 0 6px 20px rgba(0,0,0,.03)' }}>
             <button onClick={r.onOpen} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'10px 12px', border:'none', background:'#fff', cursor:'pointer', textAlign:'left' }}>
