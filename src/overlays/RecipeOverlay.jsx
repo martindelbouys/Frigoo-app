@@ -49,16 +49,6 @@ export default function RecipeOverlay(p) {
             </div>
           </div>
         )}
-        {p.showRecipeDup && (
-          <div style={{ marginTop:16, background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, padding:18 }}>
-            <div style={{ fontSize:16, fontWeight:800, marginBottom:8 }}>Certains ingrédients sont déjà dans ta liste</div>
-            <div style={{ fontSize:14, fontWeight:600, color:'#6B6B6B', marginBottom:14 }}>Que faire avec les doublons ?</div>
-            <div style={{ display:'flex', gap:8 }}>
-              <button onClick={p.addRecipeNoDup} style={{ flex:1, border:'1.5px solid #E0E0E0', background:'#fff', color:'#6B6B6B', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'12px', borderRadius:12, cursor:'pointer' }}>Ignorer</button>
-              <button onClick={p.addRecipeWithDup} style={{ flex:2, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'12px', borderRadius:12, cursor:'pointer' }}>+1 quantité</button>
-            </div>
-          </div>
-        )}
       </div>
       <div style={{ flexShrink:0, background:'#fff', borderTop:'1px solid #EFEFEF', padding:'14px 16px', paddingBottom:'max(26px, env(safe-area-inset-bottom))' }}>
         <button onClick={p.addCurrentRecipe} style={{ width:'100%', border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:16, fontWeight:800, padding:16, borderRadius:16, cursor:'pointer', boxShadow:'0 6px 18px rgba(232,71,42,.3)' }}>Tout ajouter à la liste</button>

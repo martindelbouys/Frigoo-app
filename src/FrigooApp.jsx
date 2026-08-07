@@ -72,14 +72,14 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const inFridge = mine.filter(a => a.place === 'frigo')
 
   // ── Article actions ────────────────────────────────────────────────────────
-  const { addToList, setQty, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear } = useListItems({
+  const { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear } = useListItems({
     activeListId, articles, flash, onListCleared:()=>setOverlay(null),
   })
 
   // ── Recipe actions ─────────────────────────────────────────────────────────
   const {
     recipeId, setRecipeId, recipeAsk, pendingRecipeId,
-    deleteRecipe, askAddRecipe, cancelAsk, commitRecipe, confirmAddStep1,
+    deleteRecipe, askAddRecipe, cancelAsk, confirmAddStep1,
   } = useRecipeActions({ uid, recipes, activeListId, lists, articles, inList, flash, setOverlay, setTab })
 
   // ── List actions ───────────────────────────────────────────────────────────
@@ -102,13 +102,10 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Item decoration ────────────────────────────────────────────────────────
   const decoItem = (a) => {
     return {
-      id:a.id, name:a.name, emoji:emojiOf(a.name), qty:a.qty, checked:!!a.checked,
+      id:a.id, name:a.name, emoji:emojiOf(a.name), checked:!!a.checked,
       tileStyle:tileStyle(34, 19, catById(a.cat).color),
-      qtyLabel:a.qty>1?('×'+a.qty):'',
       nameStyle:{ flex:1, fontSize:15, fontWeight:700, textDecoration:a.checked?'line-through':'none', color:a.checked?'#B7B7B7':'#15110F' },
       checkStyle:{ width:27, height:27, flexShrink:0, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:a.checked?'#E8472A':'#fff', border:a.checked?'2px solid #E8472A':'2px solid #DBDBDB' },
-      onInc:()=>setQty(a.id, a.listId, 1),
-      onDec:()=>setQty(a.id, a.listId, -1),
       onToggle:()=>toggleCheck(a.id, a.listId),
       onRebuy:()=>rebuy(a.id, a.listId),
       onRemove:()=>remove(a.id, a.listId),
@@ -245,8 +242,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     openEditRecipe:()=>{ if(curR) { setEditRecipeId(curR.id); setNrText(''); setOverlay('editRecipe') } },
     editRecipe: recipes.find(r => r.id === editRecipeId) || null,
     uploadRecipePhoto, updateRecipe,
-    showRecipeConfirm:recipeAsk==='confirm', showRecipeDup:recipeAsk==='dup', pendRecipeName:pendR?.name||'',
-    confirmAddStep1, addRecipeWithDup:()=>commitRecipe(true), addRecipeNoDup:()=>commitRecipe(false), cancelAsk,
+    showRecipeConfirm:recipeAsk==='confirm', pendRecipeName:pendR?.name||'',
+    confirmAddStep1, cancelAsk,
     myLists,
     invitations: invitations.map(i => ({
       id: i.id, name: i.name, emoji: i.emoji || '📝',

@@ -7,7 +7,7 @@ import { priceOf } from '../lib/catalog'
 // Ajout d'une recette à la liste active (avec confirmation en cas de doublons)
 // et suppression de recette. Porte son propre état de confirmation (recipeId,
 // recipeAsk, pendingRecipeId) car il est indissociable de ces actions.
-export function useRecipeActions({ uid, recipes, activeListId, lists, articles, inList, flash, setOverlay, setTab }) {
+export function useRecipeActions({ uid, recipes, activeListId, lists, articles, flash, setOverlay, setTab }) {
   const [recipeId, setRecipeId]               = useState(null)
   const [recipeAsk, setRecipeAsk]             = useState(null)
   const [pendingRecipeId, setPendingRecipeId] = useState(null)
@@ -22,7 +22,10 @@ export function useRecipeActions({ uid, recipes, activeListId, lists, articles, 
   const askAddRecipe = (id) => { setRecipeId(id); setPendingRecipeId(id); setRecipeAsk('confirm'); setOverlay('recipe') }
   const cancelAsk = () => { setRecipeAsk(null); setPendingRecipeId(null) }
 
-  const commitRecipe = async (includeDup) => {
+  // Pas de notion de quantité : un ingrédient déjà dans la liste est simplement
+  // ignoré (pas de choix à faire, contrairement à avant où on demandait s'il
+  // fallait +1 sa quantité).
+  const commitRecipe = async () => {
     const r = recipes.find(x => x.id === pendingRecipeId)
     if (!r) { setRecipeAsk(null); return }
     const lid = activeListId
@@ -31,9 +34,7 @@ export function useRecipeActions({ uid, recipes, activeListId, lists, articles, 
     let added = 0
     r.ing.forEach(({name, cat}) => {
       const ex = articles.find(a => a.listId === lid && a.name.toLowerCase() === name.toLowerCase())
-      if (ex) {
-        if (includeDup) { batch.update(doc(db, 'lists', lid, 'items', ex.id), { qty:ex.qty+1, place:'liste' }); added++ }
-      } else {
+      if (!ex) {
         batch.set(doc(itemsRef(lid)), { name, cat, price:priceOf(name), qty:1, place:'liste', checked:false, createdAt:serverTimestamp() }); added++
       }
     })
@@ -43,13 +44,7 @@ export function useRecipeActions({ uid, recipes, activeListId, lists, articles, 
     else flash(added+' ingrédient'+(added>1?'s':'')+' ajouté'+(added>1?'s':'')+' à « '+(listActive?.name||'')+' »')
   }
 
-  const confirmAddStep1 = () => {
-    const r = recipes.find(x => x.id === pendingRecipeId)
-    if (!r) { setRecipeAsk(null); return }
-    const hasDup = r.ing.some(({name}) => inList.some(a => a.name.toLowerCase() === name.toLowerCase()))
-    if (hasDup) setRecipeAsk('dup')
-    else commitRecipe(true)
-  }
+  const confirmAddStep1 = () => commitRecipe()
 
   return {
     recipeId, setRecipeId, recipeAsk, pendingRecipeId,

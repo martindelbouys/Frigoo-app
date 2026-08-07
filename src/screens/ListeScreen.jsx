@@ -178,11 +178,6 @@ export default function ListeScreen(p) {
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:15, fontWeight:700, lineHeight:1.2 }}>{it.name}</div>
                           </div>
-                          <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                            <button onClick={it.onDec} style={{ width:30, height:30, border:'none', borderRadius:9, background:'#EBEBEB', cursor:'pointer', fontSize:18, fontWeight:700, color:'#6B6B6B', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>−</button>
-                            <span style={{ minWidth:16, textAlign:'center', fontSize:14, fontWeight:800 }}>{it.qty}</span>
-                            <button onClick={it.onInc} style={{ width:30, height:30, border:'none', borderRadius:9, background:'#E8472A', cursor:'pointer', fontSize:17, fontWeight:700, color:'#fff', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>+</button>
-                          </div>
                         </div>
                       </div>
                     ))}

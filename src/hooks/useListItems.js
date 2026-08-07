@@ -3,8 +3,9 @@ import { db } from '../firebase'
 import { itemsRef } from '../firestore/paths'
 import { priceOf } from '../lib/catalog'
 
-// Actions CRUD sur les articles de la liste active (ajout, quantité, suppression,
+// Actions CRUD sur les articles de la liste active (ajout, suppression,
 // aller/retour frigo, vidage). Ne connaît rien d'autre que la liste active et ses articles.
+// Pas de notion de quantité : un article est soit dans la liste, soit pas.
 export function useListItems({ activeListId, articles, flash, onListCleared }) {
   const mine     = articles.filter(a => a.listId === activeListId)
   const inList   = mine.filter(a => a.place === 'liste')
@@ -14,20 +15,16 @@ export function useListItems({ activeListId, articles, flash, onListCleared }) {
     const lid = activeListId
     const ex = articles.find(a => a.listId === lid && a.name.toLowerCase() === name.toLowerCase())
     if (ex) {
-      await updateDoc(doc(db, 'lists', lid, 'items', ex.id), { qty: ex.qty + 1, place:'liste' })
-      flash(name+' déjà là — quantité +1')
+      if (ex.place !== 'liste') {
+        await updateDoc(doc(db, 'lists', lid, 'items', ex.id), { place:'liste' })
+        flash(name+' remis dans la liste ✓')
+      } else {
+        flash(name+' déjà dans la liste')
+      }
     } else {
       await addDoc(itemsRef(lid), { name, cat, price:price!=null?price:priceOf(name), qty:1, place:'liste', checked:false, createdAt:serverTimestamp() })
       flash(name+' ajouté ✓')
     }
-  }
-
-  const setQty = async (id, listId, d) => {
-    const item = articles.find(a => a.id === id)
-    if (!item) return
-    const q = item.qty + d
-    if (q <= 0) await deleteDoc(doc(db, 'lists', listId, 'items', id))
-    else await updateDoc(doc(db, 'lists', listId, 'items', id), { qty:q })
   }
 
   const remove = async (id, listId) => {
@@ -68,5 +65,5 @@ export function useListItems({ activeListId, articles, flash, onListCleared }) {
     flash('Liste vidée 🧹 (frigo conservé)')
   }
 
-  return { addToList, setQty, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear }
+  return { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear }
 }
