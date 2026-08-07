@@ -120,29 +120,26 @@ input, select, textarea {
   max-width: 100%;
 }
 
-/* Logo décoratif de l'écran Liste — se replie au scroll, en suivant le doigt
-   en continu via --collapse (0 → 1, recalculé à chaque frame par
-   useBrandCollapse). Le sélecteur de liste (le vrai contenu utile) est un
-   élément séparé, toujours visible, pas concerné par ce repli — seul le
-   visuel décoratif se réduit, comme le carrousel de la référence fournie. */
+/* Header de l'écran Liste (logo + sélecteur de liste) — se replie
+   entièrement au scroll, en suivant le doigt en continu via --collapse
+   (0 → 1, recalculé à chaque frame par useBrandCollapse, sans transition CSS
+   pour ne pas décaler le rendu par rapport au geste). */
 .brand-header {
   overflow: hidden;
-  max-height: calc(var(--brand-h, 120px) * (1 - var(--collapse, 0)));
+  max-height: calc(var(--brand-h, 300px) * (1 - var(--collapse, 0)));
   contain: layout style;
 }
 .brand-header-inner {
   opacity: calc(1 - var(--collapse, 0));
 }
 
-/* Mascotte décorative des onglets Recettes/Dépenses/Réglages — le titre de
-   l'onglet est un élément séparé, à côté, jamais affecté. La mascotte est
-   positionnée en absolute dans un conteneur 0×0 (ne prend jamais de place
-   dans la mise en page), donc un simple fondu + réduction suffit ici, pas
-   besoin de repli de hauteur comme pour le logo de l'écran Liste. */
+/* Header d'onglet (Recettes/Dépenses/Réglages — titre + mascotte) — même
+   repli continu que le header de l'écran Liste. overflow visible pour
+   laisser la mascotte déborder du bandeau sans agrandir sa hauteur. */
 .tab-header {
+  overflow: visible;
+  max-height: calc(var(--tab-h, 90px) * (1 - var(--collapse, 0)));
   opacity: calc(1 - var(--collapse, 0));
-  transform: scale(calc(1 - var(--collapse, 0) * 0.25));
-  transform-origin: left center;
   contain: layout style;
 }
 

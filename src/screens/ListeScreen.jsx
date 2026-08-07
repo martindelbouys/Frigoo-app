@@ -26,30 +26,28 @@ export default function ListeScreen(p) {
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
-      {/* Logo — décoratif, se replie au scroll (comme le carrousel de la référence) */}
+      {/* Header : logo + sélecteur de liste, se replient ensemble au scroll */}
       <div ref={p.brandRef} className="brand-header" style={{ background:'#FFE7DF', flexShrink:0 }}>
-        <div className="brand-header-inner" style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, paddingTop:14 }}>
-          <span>frig</span>
-          <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
-        </div>
-      </div>
-
-      {/* Sélecteur de liste — reste toujours visible, comme le titre "Offres" de la référence */}
-      <div style={{ background:'#FFE7DF', flexShrink:0, padding:'0 16px 14px' }}>
-        <button onClick={e=>{ e.stopPropagation(); p.toggleListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)' }}>
-          <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
-          <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
-            <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
+        <div className="brand-header-inner" style={{ position:'relative', paddingTop:14, paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, marginBottom:14 }}>
+            <span>frig</span>
+            <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
           </div>
-          {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
-          <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: p.listDropOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-            Changer
-          </span>
-        </button>
+          <button onClick={e=>{ e.stopPropagation(); p.toggleListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)' }}>
+            <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
+              <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
+            </div>
+            {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
+            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: p.listDropOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+              Changer
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Invitations en attente */}

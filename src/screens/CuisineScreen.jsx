@@ -4,10 +4,12 @@ export default function CuisineScreen(p) {
   const { headerRef, onScroll } = useTabHeaderCollapse()
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
-      <div style={{ flexShrink:0, padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
-        <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
-        <div ref={headerRef} className="tab-header" style={{ position:'relative', width:0, height:0 }}>
-          <img src="/uploads/penguin-chef.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
+      <div ref={headerRef} className="tab-header" style={{ flexShrink:0 }}>
+        <div style={{ padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
+          <div style={{ position:'relative', width:0, height:0 }}>
+            <img src="/uploads/penguin-chef.png" alt="" style={{ position:'absolute', left:8, top:'50%', transform:'translateY(-50%)', height:96, width:'auto', display:'block' }} />
+          </div>
         </div>
       </div>
       <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
