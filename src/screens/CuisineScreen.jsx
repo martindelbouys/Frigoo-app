@@ -1,7 +1,7 @@
 export default function CuisineScreen(p) {
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'14px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
+      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'44px 16px 120px', display:'flex', flexDirection:'column', gap:12, position:'relative' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
           <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Recettes</div>
           <div style={{ position:'relative', width:0, height:0 }}>

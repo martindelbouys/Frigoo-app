@@ -4,7 +4,7 @@ export default function DepensesScreen(p) {
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', paddingTop:'env(safe-area-inset-top)' }}>
-      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
+      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'44px 16px 120px' }}>
 
         {/* Titre + mascotte */}
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:16 }}>
