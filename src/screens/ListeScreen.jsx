@@ -134,7 +134,7 @@ export default function ListeScreen(p) {
 
       {/* Main list content */}
       {!p.searching && (
-        <div ref={p.scrollRef} className="fg-scroll" onScroll={p.onListScroll} style={{ flex:1, overflowY:'auto' }}>
+        <div ref={p.scrollRef} className="fg-scroll" style={{ flex:1, overflowY:'auto' }}>
           {/* Category pills */}
           <div className="fg-scroll" style={{ position:'sticky', top:0, zIndex:12, display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F2F2F2', borderBottom:'1px solid #ECECEC' }}>
             {p.categories.map((c, i) => (

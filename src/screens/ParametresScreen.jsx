@@ -1,19 +1,16 @@
 import { useState, useRef } from 'react'
 
-import { useTabHeaderCollapse } from '../hooks/useTabHeaderCollapse'
-
 export default function ParametresScreen(p) {
   const [editingName, setEditingName] = useState(false)
   const [nameVal, setNameVal]         = useState('')
   const fileRef = useRef()
-  const { headerRef, onScroll } = useTabHeaderCollapse()
 
   const startEdit = () => { setNameVal(p.userName || ''); setEditingName(true) }
   const commitName = () => { if (nameVal.trim()) p.saveDisplayName(nameVal.trim()); setEditingName(false) }
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', paddingTop:'env(safe-area-inset-top)' }}>
-      <div ref={headerRef} className="tab-header" style={{ flexShrink:0 }}>
+      <div className="tab-header" style={{ flexShrink:0 }}>
         <div style={{ padding:'0 16px 14px', paddingTop:16, display:'flex', alignItems:'center', gap:8 }}>
           <div style={{ fontSize:28, fontWeight:800, letterSpacing:'-.6px' }}>Paramètres</div>
           <div style={{ position:'relative', width:0, height:0 }}>
@@ -21,7 +18,7 @@ export default function ParametresScreen(p) {
           </div>
         </div>
       </div>
-      <div className="fg-scroll" onScroll={onScroll} style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
+      <div className="fg-scroll" style={{ flex:1, overflowY:'auto', padding:'16px 16px 120px' }}>
 
         {/* Profile card */}
         <div style={{ display:'flex', alignItems:'center', gap:14, background:'#fff', border:'1px solid #F0F0F0', borderRadius:20, padding:16 }}>
