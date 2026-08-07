@@ -26,68 +26,7 @@ export default function ListeScreen(p) {
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'#F2F2F2', position:'relative', paddingTop:'env(safe-area-inset-top)' }}>
-      {/* Header : logo + sélecteur de liste, se replient ensemble au scroll */}
-      <div ref={p.brandRef} className="brand-header" style={{ background:'#FFE7DF', flexShrink:0 }}>
-        <div className="brand-header-inner" style={{ position:'relative', paddingTop:14, paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, marginBottom:14 }}>
-            <span>frig</span>
-            <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
-          </div>
-          <button onClick={e=>{ e.stopPropagation(); p.toggleListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)' }}>
-            <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
-              <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
-            </div>
-            {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
-            <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: p.listDropOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>
-                <path d="M6 9l6 6 6-6"/>
-              </svg>
-              Changer
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Invitations en attente */}
-      {p.invitations.length > 0 && (
-        <div style={{ flexShrink:0, padding:'12px 16px 0' }}>
-          {p.invitations.map(inv => (
-            <div key={inv.id} style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF4F1', border:'1.5px solid #FFD9CC', borderRadius:16, padding:'11px 12px', marginBottom:8 }}>
-              <span style={{ fontSize:22, flexShrink:0 }}>{inv.emoji}</span>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4 }}>Liste partagée · invitation</div>
-                <div style={{ fontSize:14, fontWeight:800, letterSpacing:'-.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{inv.name}</div>
-              </div>
-              <button onClick={inv.onDecline} style={{ flexShrink:0, border:'none', background:'#fff', color:'#9A9A9A', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Refuser</button>
-              <button onClick={inv.onAccept} style={{ flexShrink:0, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Accepter</button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Inline list dropdown */}
-      {p.listDropOpen && (
-        <div style={{ background:'#FFE7DF', flexShrink:0, padding:'28px 14px 16px' }}>
-          {p.myLists.map((l, i) => (
-            <button key={i} onClick={e=>{ e.stopPropagation(); l.onSelect(); p.closeListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:13, border:'none', borderRadius:16, background: l.active ? '#fff' : 'rgba(255,255,255,0.55)', padding:'13px 14px', cursor:'pointer', textAlign:'left', marginBottom: i < p.myLists.length - 1 ? 8 : 0, boxShadow: l.active ? '0 3px 12px rgba(232,71,42,.14)' : 'none' }}>
-              <span style={{ width:42, height:42, flexShrink:0, borderRadius:13, background: l.active ? '#FDEDE9' : '#FFF4F1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{l.emoji}</span>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:16, fontWeight:800, color:'#15110F', lineHeight:1.2 }}>{l.name}</div>
-                <div style={{ fontSize:11.5, fontWeight:700, color: l.active ? '#E8472A' : '#9A9A9A', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{l.subLabel}</div>
-              </div>
-              {l.active && (
-                <span style={{ flexShrink:0, width:26, height:26, borderRadius:8, background:'#E8472A', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                  <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5l3.5 3.5L11.5 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Search bar */}
+      {/* Search bar — seul élément fixe, tout le reste scrolle normalement */}
       <div style={{ background:'#fff', padding:'12px 16px 10px', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, background:'#F1F1F2', borderRadius:13, padding:'0 12px', height:44 }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" strokeWidth="2.2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
@@ -134,9 +73,70 @@ export default function ListeScreen(p) {
 
       {/* Main list content */}
       {!p.searching && (
-        <div ref={p.scrollRef} className="fg-scroll" onScroll={p.onListScroll} style={{ flex:1, overflowY:'auto' }}>
+        <div ref={p.scrollRef} className="fg-scroll" style={{ flex:1, overflowY:'auto' }}>
+          {/* Logo + sélecteur de liste */}
+          <div style={{ background:'#FFE7DF' }}>
+            <div style={{ paddingTop:14, paddingLeft:16, paddingRight:16, paddingBottom:14 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Fredoka',sans-serif", fontSize:60, fontWeight:600, letterSpacing:-0.5, color:'#E8472A', lineHeight:1, marginBottom:14 }}>
+                <span>frig</span>
+                <img src="/uploads/frigoo-eyes.png" alt="" style={{ height:52, width:'auto', marginLeft:1, transform:'translateY(15px)', display:'block' }} />
+              </div>
+              <button onClick={e=>{ e.stopPropagation(); p.toggleListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, border:'none', background:'#fff', borderRadius:15, padding:'11px 11px 11px 13px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,.06)' }}>
+                <span style={{ fontSize:26, lineHeight:1 }}>{p.activeListEmoji}</span>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:21, fontWeight:800, letterSpacing:'-.5px', lineHeight:1.1 }}>{p.activeListName}</div>
+                  <div style={{ fontSize:11.5, fontWeight:700, color:'#9A9A9A', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{p.activeMembersLabel}</div>
+                </div>
+                {p.activeMembersLabel !== 'Toi seul' && <span style={{ flexShrink:0, fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4, lineHeight:1.15, textAlign:'right', whiteSpace:'nowrap' }}>Liste partagée</span>}
+                <span style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, background:'#FFF4F1', borderRadius:11, padding:'8px 12px', fontSize:13, fontWeight:800, color:'#E8472A' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" style={{ transform: p.listDropOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                  Changer
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Invitations en attente */}
+          {p.invitations.length > 0 && (
+            <div style={{ padding:'12px 16px 0' }}>
+              {p.invitations.map(inv => (
+                <div key={inv.id} style={{ display:'flex', alignItems:'center', gap:11, background:'#FFF4F1', border:'1.5px solid #FFD9CC', borderRadius:16, padding:'11px 12px', marginBottom:8 }}>
+                  <span style={{ fontSize:22, flexShrink:0 }}>{inv.emoji}</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:9, fontWeight:800, color:'#E8472A', textTransform:'uppercase', letterSpacing:.4 }}>Liste partagée · invitation</div>
+                    <div style={{ fontSize:14, fontWeight:800, letterSpacing:'-.2px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{inv.name}</div>
+                  </div>
+                  <button onClick={inv.onDecline} style={{ flexShrink:0, border:'none', background:'#fff', color:'#9A9A9A', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Refuser</button>
+                  <button onClick={inv.onAccept} style={{ flexShrink:0, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:12, fontWeight:800, padding:'8px 11px', borderRadius:10, cursor:'pointer' }}>Accepter</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Inline list dropdown */}
+          {p.listDropOpen && (
+            <div style={{ background:'#FFE7DF', padding:'14px 14px 16px' }}>
+              {p.myLists.map((l, i) => (
+                <button key={i} onClick={e=>{ e.stopPropagation(); l.onSelect(); p.closeListDrop() }} style={{ width:'100%', display:'flex', alignItems:'center', gap:13, border:'none', borderRadius:16, background: l.active ? '#fff' : 'rgba(255,255,255,0.55)', padding:'13px 14px', cursor:'pointer', textAlign:'left', marginBottom: i < p.myLists.length - 1 ? 8 : 0, boxShadow: l.active ? '0 3px 12px rgba(232,71,42,.14)' : 'none' }}>
+                  <span style={{ width:42, height:42, flexShrink:0, borderRadius:13, background: l.active ? '#FDEDE9' : '#FFF4F1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>{l.emoji}</span>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:16, fontWeight:800, color:'#15110F', lineHeight:1.2 }}>{l.name}</div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color: l.active ? '#E8472A' : '#9A9A9A', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{l.subLabel}</div>
+                  </div>
+                  {l.active && (
+                    <span style={{ flexShrink:0, width:26, height:26, borderRadius:8, background:'#E8472A', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5l3.5 3.5L11.5 1" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Category pills */}
-          <div className="fg-scroll" style={{ position:'sticky', top:0, zIndex:12, display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F2F2F2', borderBottom:'1px solid #ECECEC' }}>
+          <div className="fg-scroll" style={{ display:'flex', gap:8, overflowX:'auto', padding:'12px 16px 11px', background:'#F2F2F2', borderBottom:'1px solid #ECECEC' }}>
             {p.categories.map((c, i) => (
               <button key={i} onClick={c.onOpen} style={{ flexShrink:0, display:'flex', alignItems:'center', gap:7, padding:'8px 13px 8px 9px', border:'1px solid #ECECEC', borderRadius:13, background:'#fff', cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,.03)' }}>
                 <span style={c.tileStyle}>{c.emoji}</span>

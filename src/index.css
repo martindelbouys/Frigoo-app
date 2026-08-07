@@ -120,29 +120,6 @@ input, select, textarea {
   max-width: 100%;
 }
 
-/* Header de l'écran Liste (logo + sélecteur de liste) — se replie
-   entièrement au scroll, en suivant le doigt en continu via --collapse
-   (0 → 1, recalculé à chaque frame par useBrandCollapse, sans transition CSS
-   pour ne pas décaler le rendu par rapport au geste). */
-.brand-header {
-  overflow: hidden;
-  max-height: calc(var(--brand-h, 300px) * (1 - var(--collapse, 0)));
-  contain: layout style;
-}
-.brand-header-inner {
-  opacity: calc(1 - var(--collapse, 0));
-}
-
-/* Header d'onglet (Recettes/Dépenses/Réglages — titre + mascotte) — même
-   repli continu que le header de l'écran Liste. overflow visible pour
-   laisser la mascotte déborder du bandeau sans agrandir sa hauteur. */
-.tab-header {
-  overflow: visible;
-  max-height: calc(var(--tab-h, 90px) * (1 - var(--collapse, 0)));
-  opacity: calc(1 - var(--collapse, 0));
-  contain: layout style;
-}
-
 @keyframes fgToast {
   from { opacity: 0; transform: translate(-50%, 12px); }
   to   { opacity: 1; transform: translate(-50%, 0); }

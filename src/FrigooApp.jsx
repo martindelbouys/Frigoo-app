@@ -15,7 +15,6 @@ import { useListItems } from './hooks/useListItems'
 import { useRecipeActions } from './hooks/useRecipeActions'
 import { useListManagement } from './hooks/useListManagement'
 import { useExpenses } from './hooks/useExpenses'
-import { useBrandCollapse } from './hooks/useBrandCollapse'
 import { useTabPager } from './hooks/useTabPager'
 import ListeScreen from './screens/ListeScreen'
 import CuisineScreen from './screens/CuisineScreen'
@@ -94,8 +93,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Swipe gesture ──────────────────────────────────────────────────────────
   const { startSwipe, moveTouchSwipe, endTouchSwipe } = useSwipeGesture({ remove, gotIt, flash })
 
-  // ── Repli du logo décoratif (écran Liste) ───────────────────────────────────
-  const { brandRef, scrollRef, onListScroll } = useBrandCollapse([inList.length, activeListId])
+  // ── Ref du conteneur de scroll (écran Liste) ────────────────────────────────
+  const scrollRef = useRef(null)
 
   // ── Pager d'onglets (swipe horizontal) ──────────────────────────────────────
   const { pagerRef, onPagerScroll, goToTab } = useTabPager(tab, setTab)
@@ -275,7 +274,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     createNamedList,
     addInviteToList, removeInviteFromList,
     openListsMgr:()=>{ setOverlay('listsMgr'); setMgrName(''); setMgrEmoji('📝'); setMgrInviteEmails([]); setMgrInviteText('') },
-    brandRef, scrollRef, onListScroll,
+    scrollRef,
     onListTouchMove:moveTouchSwipe, onListTouchEnd:endTouchSwipe,
     comingSoon:()=>flash('Bientôt disponible 🐧'),
     userName, userPhoto, saveDisplayName, uploadPhoto,
