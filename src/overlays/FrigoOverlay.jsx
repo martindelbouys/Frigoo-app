@@ -1,13 +1,13 @@
 export default function FrigoOverlay(p) {
   return (
     <div style={{ position:'absolute', inset:0, zIndex:40, background:'#F2F2F2', display:'flex', flexDirection:'column' }}>
-      <div style={{ background:'linear-gradient(180deg,#EAF4FB,#fff)', padding:'16px 16px 14px', paddingTop:'max(44px, env(safe-area-inset-top))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
+      <div style={{ background:'#EAF4FB', padding:'16px 16px 14px', paddingTop:'max(44px, env(safe-area-inset-top))', borderBottom:'1px solid #F0F0F0', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <button onClick={p.closeOverlay} style={{ width:40, height:40, flexShrink:0, border:'none', borderRadius:12, background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 1px 3px rgba(0,0,0,.08)' }}>
             <svg width="11" height="18" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="#404040" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.4px', color:'#2E86C9' }}>Dans mon frigoo,<div> il doit y avoir...</div></div>
+            <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.4px', color:'#15110f' }}>Dans mon frigoo,<div> il doit y avoir...</div></div>
           </div>
         </div>
       </div>
