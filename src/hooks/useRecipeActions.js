@@ -3,6 +3,7 @@ import { doc, deleteDoc, writeBatch, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { itemsRef } from '../firestore/paths'
 import { priceOf } from '../lib/catalog'
+import { isInList } from '../lib/items'
 
 // Ajout d'une recette à la liste active (avec confirmation en cas de doublons)
 // et suppression de recette. Porte son propre état de confirmation (recipeId,
@@ -35,7 +36,9 @@ export function useRecipeActions({ uid, recipes, activeListId, lists, articles, 
     r.ing.forEach(({name, cat}) => {
       const ex = articles.find(a => a.listId === lid && a.name.toLowerCase() === name.toLowerCase())
       if (!ex) {
-        batch.set(doc(itemsRef(lid)), { name, cat, price:priceOf(name), qty:1, place:'liste', checked:false, createdAt:serverTimestamp() }); added++
+        batch.set(doc(itemsRef(lid)), { name, cat, price:priceOf(name), qty:1, inList:true, inFridge:false, checked:false, createdAt:serverTimestamp() }); added++
+      } else if (!isInList(ex)) {
+        batch.update(doc(db, 'lists', lid, 'items', ex.id), { inList:true }); added++
       }
     })
     await batch.commit()

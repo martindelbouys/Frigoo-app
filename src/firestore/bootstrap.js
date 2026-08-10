@@ -65,7 +65,7 @@ export async function bootstrapUser(uid) {
         const lRef = await addDoc(collection(db, 'lists'), { ...listData, createdAt:serverTimestamp() })
         if (!firstId) firstId = lRef.id
         const b = writeBatch(db)
-        items.forEach(it => b.set(doc(itemsRef(lRef.id)), { ...it, place:'liste', checked:false, createdAt:serverTimestamp() }))
+        items.forEach(it => b.set(doc(itemsRef(lRef.id)), { ...it, inList:true, inFridge:false, checked:false, createdAt:serverTimestamp() }))
         await b.commit()
       }
       await updateDoc(userRef(uid), { activeListId:firstId, budget:250 })
@@ -88,9 +88,9 @@ export async function bootstrapUser(uid) {
       const lid = listRef.id
       const batch = writeBatch(db)
       const seeds = [
-        { name:'Pâtes', cat:'fec', price:0.95, qty:2, place:'liste', checked:false },
-        { name:'Bananes', cat:'fl', price:1.20, qty:1, place:'liste', checked:false },
-        { name:'Lait', cat:'lait', price:0.89, qty:2, place:'liste', checked:false },
+        { name:'Pâtes', cat:'fec', price:0.95, qty:2, inList:true, inFridge:false, checked:false },
+        { name:'Bananes', cat:'fl', price:1.20, qty:1, inList:true, inFridge:false, checked:false },
+        { name:'Lait', cat:'lait', price:0.89, qty:2, inList:true, inFridge:false, checked:false },
       ]
       seeds.forEach(s => batch.set(doc(itemsRef(lid)), { ...s, createdAt:serverTimestamp() }))
       await batch.commit()

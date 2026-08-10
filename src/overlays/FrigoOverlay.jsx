@@ -23,9 +23,11 @@ export default function FrigoOverlay(p) {
             <div style={{ background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, overflow:'hidden' }}>
               {p.fridgeItems.map(it => (
                 <div key={it.id} style={{ display:'flex', alignItems:'center', gap:11, padding:'13px 14px', borderBottom:'1px solid #F4F4F4' }}>
-                  <span style={it.tileStyle}>{it.emoji}</span>
-                  <span style={{ flex:1, minWidth:0, fontSize:16, fontWeight:700, color:'#15110f' }}>{it.name}</span>
-                  <button onClick={it.onRebuy} style={{ flexShrink:0, border:'none', background:'#FFF4F1', color:'#E8472A', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'8px 14px', borderRadius:11, cursor:'pointer' }}>Racheter</button>
+                  <span style={{ ...it.tileStyle, opacity:it.inList?0.5:1 }}>{it.emoji}</span>
+                  <span style={{ flex:1, minWidth:0, fontSize:16, fontWeight:700, color:it.inList?'#B7B7B7':'#15110f' }}>{it.name}</span>
+                  {it.inList
+                    ? <span style={{ flexShrink:0, fontSize:13, fontWeight:800, color:'#B7B7B7', padding:'8px 4px' }}>Dans la liste</span>
+                    : <button onClick={it.onRebuy} style={{ flexShrink:0, border:'none', background:'#FFF4F1', color:'#E8472A', fontFamily:'inherit', fontSize:13, fontWeight:800, padding:'8px 14px', borderRadius:11, cursor:'pointer' }}>Racheter</button>}
                   <button onClick={it.onRemove} style={{ flexShrink:0, border:'none', background:'transparent', color:'#C8C8C8', fontSize:18, fontWeight:700, cursor:'pointer', width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
                 </div>
               ))}

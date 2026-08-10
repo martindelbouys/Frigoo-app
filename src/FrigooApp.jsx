@@ -8,6 +8,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { CATS, CATALOG } from './data'
 import { fmt, tileStyle } from './lib/format'
 import { catById, catalogCat, emojiOf, priceOf } from './lib/catalog'
+import { isInList, isInFridge } from './lib/items'
 import { useSwipeGesture } from './hooks/useSwipeGesture'
 import { recipesRef } from './firestore/paths'
 import { useFrigooData } from './hooks/useFrigooData'
@@ -67,11 +68,11 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Computed ───────────────────────────────────────────────────────────────
   const active   = lists.find(l => l.id === activeListId) || lists[0] || { name:'Ma liste', emoji:'🙂', members:[uid] }
   const mine     = articles.filter(a => a.listId === activeListId)
-  const inList   = mine.filter(a => a.place === 'liste')
-  const inFridge = mine.filter(a => a.place === 'frigo')
+  const inList   = mine.filter(isInList)
+  const inFridge = mine.filter(isInFridge)
 
   // ── Article actions ────────────────────────────────────────────────────────
-  const { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, clearChecked } = useListItems({
+  const { addToList, removeFromList, removeFromFridge, gotIt, rebuy, clearFridge, toggleCheck, clearChecked } = useListItems({
     activeListId, articles, flash,
   })
 
@@ -90,7 +91,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   } = useListManagement({ uid, userEmail, lists, invitations, articles, activeListId, flash, setOverlay })
 
   // ── Swipe gesture ──────────────────────────────────────────────────────────
-  const { startSwipe, moveTouchSwipe, endTouchSwipe } = useSwipeGesture({ remove, gotIt, flash })
+  const { startSwipe, moveTouchSwipe, endTouchSwipe } = useSwipeGesture({ remove:removeFromList, gotIt, flash })
 
   // ── Ref du conteneur de scroll (écran Liste) ────────────────────────────────
   const scrollRef = useRef(null)
@@ -101,13 +102,13 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   // ── Item decoration ────────────────────────────────────────────────────────
   const decoItem = (a) => {
     return {
-      id:a.id, name:a.name, emoji:emojiOf(a.name), checked:!!a.checked,
+      id:a.id, name:a.name, emoji:emojiOf(a.name), checked:!!a.checked, inList:isInList(a),
       tileStyle:tileStyle(34, 19, catById(a.cat).color),
       nameStyle:{ flex:1, fontSize:15, fontWeight:700, textDecoration:a.checked?'line-through':'none', color:a.checked?'#B7B7B7':'#15110F' },
       checkStyle:{ width:27, height:27, flexShrink:0, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:a.checked?'#E8472A':'#fff', border:a.checked?'2px solid #E8472A':'2px solid #DBDBDB' },
       onToggle:()=>toggleCheck(a.id, a.listId),
       onRebuy:()=>rebuy(a.id, a.listId),
-      onRemove:()=>remove(a.id, a.listId),
+      onRemove:()=>removeFromFridge(a.id, a.listId),
       onSwipeStart:(e)=>startSwipe(a.id, a.listId, e),
     }
   }
@@ -149,7 +150,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const recipeIngredients = curR ? curR.ing.map(({name, cat}) => ({ name, emoji:emojiOf(name), tileStyle:tileStyle(34,18,catById(cat||'foyer').color), inList:inList.some(a=>a.name.toLowerCase()===name.toLowerCase()) })) : []
 
   // ── Lists manager ──────────────────────────────────────────────────────────
-  const itemsCount = (id) => articles.filter(a => a.listId === id && a.place === 'liste').length
+  const itemsCount = (id) => articles.filter(a => a.listId === id && isInList(a)).length
   const myLists = lists.map(l => ({
     id:l.id, emoji:l.emoji||'📝', name:l.name, photoURL:l.photoURL||null,
     pendingInvites:l.pendingInvites||[],
