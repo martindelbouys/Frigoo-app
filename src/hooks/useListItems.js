@@ -8,9 +8,8 @@ import { isInList, isInFridge } from '../lib/items'
 // aller/retour frigo, vidage). Ne connaît rien d'autre que la liste active et ses articles.
 // Pas de notion de quantité : un article est soit dans la liste, soit pas.
 export function useListItems({ activeListId, articles, flash }) {
-  const mine     = articles.filter(a => a.listId === activeListId)
-  const inList   = mine.filter(isInList)
-  const inFridge = mine.filter(isInFridge)
+  const mine   = articles.filter(a => a.listId === activeListId)
+  const inList = mine.filter(isInList)
 
   const addToList = async (name, cat, price) => {
     const lid = activeListId
@@ -65,18 +64,6 @@ export function useListItems({ activeListId, articles, flash }) {
     flash('Ajouté à la liste ✓')
   }
 
-  const clearFridge = async () => {
-    if (!inFridge.length) return
-    const batch = writeBatch(db)
-    inFridge.forEach(a => {
-      const ref = doc(db, 'lists', a.listId, 'items', a.id)
-      if (isInList(a)) batch.update(ref, { inFridge:false })
-      else batch.delete(ref)
-    })
-    await batch.commit()
-    flash('Frigo vidé 🧊')
-  }
-
   const toggleCheck = async (id, listId) => {
     const item = articles.find(a => a.id === id)
     if (!item) return
@@ -97,5 +84,5 @@ export function useListItems({ activeListId, articles, flash }) {
     flash('Articles cochés retirés 🧹')
   }
 
-  return { addToList, removeFromList, removeFromFridge, gotIt, rebuy, clearFridge, toggleCheck, clearChecked }
+  return { addToList, removeFromList, removeFromFridge, gotIt, rebuy, toggleCheck, clearChecked }
 }

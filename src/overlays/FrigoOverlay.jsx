@@ -7,7 +7,7 @@ export default function FrigoOverlay(p) {
             <svg width="11" height="18" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="#404040" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.4px', color:'#15110f' }}>Dans mon frigoo,<div> il y a...</div></div>
+            <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-.4px', color:'#2E86C9' }}>Dans mon frigoo,<div> il doit y avoir...</div></div>
           </div>
         </div>
       </div>
@@ -39,11 +39,6 @@ export default function FrigoOverlay(p) {
           </>
         )}
       </div>
-      {p.fridgeNotEmpty && (
-        <div style={{ flexShrink:0, background:'#fff', borderTop:'1px solid #EFEFEF', padding:'14px 16px', paddingBottom:'max(26px, env(safe-area-inset-bottom))' }}>
-          <button onClick={p.clearFridge} style={{ width:'100%', border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:15, fontWeight:800, padding:'15px 22px', borderRadius:15, cursor:'pointer' }}>Vider le frigoo</button>
-        </div>
-      )}
     </div>
   )
 }

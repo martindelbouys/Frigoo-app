@@ -72,7 +72,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const inFridge = mine.filter(isInFridge)
 
   // ── Article actions ────────────────────────────────────────────────────────
-  const { addToList, removeFromList, removeFromFridge, gotIt, rebuy, clearFridge, toggleCheck, clearChecked } = useListItems({
+  const { addToList, removeFromList, removeFromFridge, gotIt, rebuy, toggleCheck, clearChecked } = useListItems({
     activeListId, articles, flash,
   })
 
@@ -235,7 +235,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     panierPickedLabel:picked+'/'+inList.length+' pris',
     panierBarPct:inList.length?Math.round(picked/inList.length*100):0,
     panierHasChecked:picked>0, clearChecked,
-    fridgeItems:inFridge.map(decoItem), fridgeEmpty:inFridge.length===0, fridgeNotEmpty:inFridge.length>0, clearFridge,
+    fridgeItems:inFridge.map(decoItem), fridgeEmpty:inFridge.length===0, fridgeNotEmpty:inFridge.length>0,
     recipes:recipesList, curR,
     recipeEmoji:curR?.emoji||'', recipeName:curR?.name||'', recipeIngLabel:curR?(curR.ing.length+' ingrédients'):'', recipeIngredients, recipePhotoURL:curR?.photoURL||null,
     addCurrentRecipe:()=>{ if(curR) askAddRecipe(curR.id) },
