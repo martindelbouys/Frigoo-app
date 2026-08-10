@@ -6,7 +6,7 @@ import { priceOf } from '../lib/catalog'
 // Actions CRUD sur les articles de la liste active (ajout, suppression,
 // aller/retour frigo, vidage). Ne connaît rien d'autre que la liste active et ses articles.
 // Pas de notion de quantité : un article est soit dans la liste, soit pas.
-export function useListItems({ activeListId, articles, flash, onListCleared }) {
+export function useListItems({ activeListId, articles, flash }) {
   const mine     = articles.filter(a => a.listId === activeListId)
   const inList   = mine.filter(a => a.place === 'liste')
   const inFridge = mine.filter(a => a.place === 'frigo')
@@ -56,14 +56,15 @@ export function useListItems({ activeListId, articles, flash, onListCleared }) {
     await updateDoc(doc(db, 'lists', listId, 'items', id), { checked:!item.checked })
   }
 
-  const doClear = async () => {
+  const clearChecked = async () => {
     const lid = activeListId
+    const checkedItems = inList.filter(a => a.checked)
+    if (!checkedItems.length) return
     const batch = writeBatch(db)
-    inList.forEach(a => batch.delete(doc(db, 'lists', lid, 'items', a.id)))
+    checkedItems.forEach(a => batch.delete(doc(db, 'lists', lid, 'items', a.id)))
     await batch.commit()
-    onListCleared?.()
-    flash('Liste vidée 🧹 (frigo conservé)')
+    flash('Articles cochés retirés 🧹')
   }
 
-  return { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear }
+  return { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, clearChecked }
 }

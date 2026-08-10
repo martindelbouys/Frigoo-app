@@ -38,14 +38,14 @@ export default function PanierOverlay(p) {
               <span style={{ fontSize:16 }}>{g.emoji}</span>
               <span style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:.3, color:'#6B6B6B' }}>{g.name}</span>
             </div>
-            <div style={{ background:'#fff', border:'1px solid #F0F0F0', borderRadius:18, overflow:'hidden' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
               {g.items.map(it => (
-                <button key={it.id} onClick={it.onToggle} style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'13px 14px', border:'none', borderBottom:'1px solid #F4F4F4', background:'#fff', cursor:'pointer', textAlign:'left' }}>
-                  <span style={it.checkStyle}>
-                    {it.checked && <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                <button key={it.id} onClick={it.onToggle} style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 10px', border:'1px solid #F0F0F0', borderRadius:16, background:'#fff', cursor:'pointer', textAlign:'left', minWidth:0 }}>
+                  <span style={{ ...it.checkStyle, width:22, height:22 }}>
+                    {it.checked && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                   </span>
-                  <span style={it.tileStyle}>{it.emoji}</span>
-                  <span style={it.nameStyle}>{it.name}</span>
+                  <span style={{ ...it.tileStyle, width:30, height:30 }}>{it.emoji}</span>
+                  <span style={{ ...it.nameStyle, flex:1, minWidth:0, fontSize:13, lineHeight:1.2, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>{it.name}</span>
                 </button>
               ))}
             </div>
@@ -54,7 +54,7 @@ export default function PanierOverlay(p) {
       </div>
       {p.panierNotEmpty && (
         <div style={{ flexShrink:0, background:'#fff', borderTop:'1px solid #EFEFEF', padding:'14px 16px', paddingBottom:'max(26px, env(safe-area-inset-bottom))', display:'flex', alignItems:'center', gap:12 }}>
-          <button onClick={p.askClear} style={{ flex:1, border:'none', background:'#E8472A', color:'#fff', fontFamily:'inherit', fontSize:15, fontWeight:800, padding:'15px 22px', borderRadius:15, cursor:'pointer' }}>Vider la liste</button>
+          <button onClick={p.clearChecked} disabled={!p.panierHasChecked} style={{ flex:1, border:'none', background:p.panierHasChecked?'#E8472A':'#F1F1F2', color:p.panierHasChecked?'#fff':'#B7B7B7', fontFamily:'inherit', fontSize:15, fontWeight:800, padding:'15px 22px', borderRadius:15, cursor:p.panierHasChecked?'pointer':'default' }}>Retirer les articles cochés</button>
         </div>
       )}
     </div>

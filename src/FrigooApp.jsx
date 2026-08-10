@@ -26,7 +26,6 @@ import RecipeOverlay from './overlays/RecipeOverlay'
 import AddSheetOverlay from './overlays/AddSheetOverlay'
 import ListsManagerOverlay from './overlays/ListsManagerOverlay'
 import NewRecipeOverlay from './overlays/NewRecipeOverlay'
-import ClearConfirmOverlay from './overlays/ClearConfirmOverlay'
 import EditListOverlay from './overlays/EditListOverlay'
 import EditRecipeOverlay from './overlays/EditRecipeOverlay'
 import BottomNav from './components/BottomNav'
@@ -72,8 +71,8 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
   const inFridge = mine.filter(a => a.place === 'frigo')
 
   // ── Article actions ────────────────────────────────────────────────────────
-  const { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, doClear } = useListItems({
-    activeListId, articles, flash, onListCleared:()=>setOverlay(null),
+  const { addToList, remove, gotIt, rebuy, clearFridge, toggleCheck, clearChecked } = useListItems({
+    activeListId, articles, flash,
   })
 
   // ── Recipe actions ─────────────────────────────────────────────────────────
@@ -234,6 +233,7 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     panierGroups:groupBy(inList), panierEmpty:inList.length===0, panierNotEmpty:inList.length>0,
     panierPickedLabel:picked+'/'+inList.length+' pris',
     panierBarPct:inList.length?Math.round(picked/inList.length*100):0,
+    panierHasChecked:picked>0, clearChecked,
     fridgeItems:inFridge.map(decoItem), fridgeEmpty:inFridge.length===0, fridgeNotEmpty:inFridge.length>0, clearFridge,
     recipes:recipesList, curR,
     recipeEmoji:curR?.emoji||'', recipeName:curR?.name||'', recipeIngLabel:curR?(curR.ing.length+' ingrédients'):'', recipeIngredients, recipePhotoURL:curR?.photoURL||null,
@@ -289,8 +289,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
     openAddDefault:()=>{ setSheetCat('fl'); setSheetText(''); setOverlay('addSheet') },
     openNewRecipe:()=>{ setOverlay('newRecipe'); setNrName(''); setNrIng([]); setNrText(''); setNrEmoji('🍽️') },
     closeOverlay:()=>setOverlay(null),
-    askClear:()=>setOverlay('clear'),
-    confirmClear:()=>doClear(),
     // Paramètres extra
     userEmail, onSignOut,
     toast,
@@ -312,7 +310,6 @@ export default function FrigooApp({ uid, userEmail, onSignOut }) {
         {overlay==='addSheet'    && <AddSheetOverlay      {...p} />}
         {overlay==='listsMgr'    && <ListsManagerOverlay  {...p} />}
         {overlay==='newRecipe'   && <NewRecipeOverlay     {...p} />}
-        {overlay==='clear'       && <ClearConfirmOverlay  {...p} />}
         {overlay==='editList'    && <EditListOverlay      {...p} />}
         {overlay==='editRecipe'  && <EditRecipeOverlay   {...p} />}
       </div>
